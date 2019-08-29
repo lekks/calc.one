@@ -1,7 +1,8 @@
-import {TypedEvent, AppDispatcher} from '../dispatcher/AppDispatcher';
+import {AppDispatcher, TypedEvent} from '../dispatcher/AppDispatcher';
+import Actions from "./Actions";
 
-export class ButtonClick extends TypedEvent<string> {}
+class ButtonClick extends TypedEvent<string> {}
 
 export function buttonClick(tag: string) {
-  AppDispatcher.dispatch(new ButtonClick(tag));
+  AppDispatcher.dispatch(new ButtonClick(Actions.ADD_NUMBER, tag));
 }

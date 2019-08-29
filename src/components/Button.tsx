@@ -1,8 +1,10 @@
 import React from 'react';
 import {buttonClick} from '../actions/ButtonActions';
+import Actions from "../actions/Actions";
 
 interface Props {
     capture: string;
+    action?: Actions;
     char?: string;
 }
 

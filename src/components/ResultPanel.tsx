@@ -1,38 +1,39 @@
 import React from 'react';
 import FBEmitter from "fbemitter";
 
-import {Expression, expressionStore} from "../stores/ExpressionStore";
+import {ResultType, expressionStore} from "../stores/ExpressionStore";
 
 interface State {
-    expression: Expression;
+    result: ResultType;
 }
 
-class Board extends React.Component<any, State> {
+class ResultPanelPanel extends React.Component<any, State> {
     private eventSubscription: FBEmitter.EventSubscription;
     constructor(props: {}) {
         super(props,);
-        this.state = Board.getStateFromStores();
+        this.state = ResultPanelPanel.getStateFromStores();
         this.eventSubscription = expressionStore.addChangeListener(this.onChange);
-
     }
+
     private onChange = () => {
-        this.setState(Board.getStateFromStores());
+        this.setState(ResultPanelPanel.getStateFromStores());
     };
 
     public componentWillUnmount() {
-        this.eventSubscription!.remove();
+        this.eventSubscription.remove();
     }
 
     render() {
         return (
             <div>
-                ${this.state.expression}
+                ={this.state.result}
             </div>
         );
     }
+
     private static getStateFromStores():State {
-        return {expression: expressionStore.getState()};
+        return {result: expressionStore.getResult()};
     }
 }
 
-export default Board;
+export default ResultPanelPanel;
