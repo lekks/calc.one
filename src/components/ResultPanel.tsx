@@ -1,7 +1,7 @@
 import React from 'react';
 import FBEmitter from "fbemitter";
 
-import {ResultType, expressionStore} from "../stores/ExpressionStore";
+import {expressionStore, ResultType} from "../stores/ExpressionStore";
 
 interface State {
     result: ResultType;
@@ -9,15 +9,16 @@ interface State {
 
 class ResultPanelPanel extends React.Component<any, State> {
     private eventSubscription: FBEmitter.EventSubscription;
+
     constructor(props: {}) {
         super(props,);
         this.state = ResultPanelPanel.getStateFromStores();
         this.eventSubscription = expressionStore.addChangeListener(this.onChange);
     }
 
-    private onChange = () => {
-        this.setState(ResultPanelPanel.getStateFromStores());
-    };
+    private static getStateFromStores(): State {
+        return {result: expressionStore.getResult()};
+    }
 
     public componentWillUnmount() {
         this.eventSubscription.remove();
@@ -31,9 +32,9 @@ class ResultPanelPanel extends React.Component<any, State> {
         );
     }
 
-    private static getStateFromStores():State {
-        return {result: expressionStore.getResult()};
-    }
+    private onChange = () => {
+        this.setState(ResultPanelPanel.getStateFromStores());
+    };
 }
 
 export default ResultPanelPanel;

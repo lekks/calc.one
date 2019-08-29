@@ -4,20 +4,21 @@ import Actions from "../actions/Actions";
 
 interface Props {
     capture: string;
-    action?: Actions;
-    char?: string;
+    tag: string;
+    action: Actions;
 }
 
 class Button extends React.Component<Props, any> {
     render() {
         return (
-            <button onClick={ this._onClick }>
-                    [{this.props.capture}]
+            <button onClick={this._onClick}>
+                [{this.props.capture}]
             </button>
-    );
+        );
     }
+
     _onClick = () => {
-        buttonClick(this.props.capture)
+        buttonClick(this.props.action, this.props.tag)
     }
 }
 

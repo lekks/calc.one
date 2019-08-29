@@ -1,6 +1,7 @@
-enum Actions{
+enum Actions {
     ADD_NUMBER,
-    CLEAR
+    CLEAR,
+    BS
 }
 
 export default Actions;

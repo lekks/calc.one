@@ -1,7 +1,7 @@
 import React from 'react';
 import FBEmitter from "fbemitter";
 
-import {ExpressionType, expressionStore} from "../stores/ExpressionStore";
+import {expressionStore, ExpressionType} from "../stores/ExpressionStore";
 
 interface State {
     expression: ExpressionType;
@@ -9,15 +9,16 @@ interface State {
 
 class ExpressionPanel extends React.Component<any, State> {
     private eventSubscription: FBEmitter.EventSubscription;
+
     constructor(props: {}) {
         super(props,);
         this.state = ExpressionPanel.getStateFromStores();
         this.eventSubscription = expressionStore.addChangeListener(this.onChange);
     }
 
-    private onChange = () => {
-        this.setState(ExpressionPanel.getStateFromStores());
-    };
+    private static getStateFromStores(): State {
+        return {expression: expressionStore.getExpression()};
+    }
 
     public componentWillUnmount() {
         this.eventSubscription.remove();
@@ -31,9 +32,9 @@ class ExpressionPanel extends React.Component<any, State> {
         );
     }
 
-    private static getStateFromStores():State {
-        return {expression: expressionStore.getExpression()};
-    }
+    private onChange = () => {
+        this.setState(ExpressionPanel.getStateFromStores());
+    };
 }
 
 export default ExpressionPanel;
