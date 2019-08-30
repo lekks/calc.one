@@ -26,7 +26,7 @@ class ResultPanelPanel extends React.Component<any, State> {
 
     render() {
         return (
-            <div>
+            <div className="Panel">
                 ={this.state.result}
             </div>
         );

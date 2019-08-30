@@ -73,7 +73,7 @@ class ExpressionStore {
 
     private backSpace(): boolean {
         if (this.expression.length > 0) {
-            this.expression = this.expression.slice(0, this.expression.length - 1);
+            this.expression = this.expression.slice(0, -1);
             this.evaluate();
             return true;
         }
