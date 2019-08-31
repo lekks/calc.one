@@ -6,19 +6,35 @@ interface Props {
     capture: string;
     tag: string;
     action: Actions;
+    keybind?: string;
 }
 
 class Button extends React.Component<Props, any> {
-    render() {
+    constructor(props: Props) {
+        super(props,);
+        document.addEventListener("keydown", this.onKeyDown)
+    }
+
+    public componentWillUnmount() {
+        document.removeEventListener("keydown", this.onKeyDown);
+    }
+
+    public render() {
         return (
-            <button onClick={this._onClick}>
+            <button onClick={this.onClick} className={"Button"}>
                 [{this.props.capture}]
             </button>
         );
     }
 
-    _onClick = () => {
+    private onClick = () => {
         buttonClick(this.props.action, this.props.tag)
+    };
+
+    private onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === this.props.keybind) {
+            this.onClick()
+        }
     }
 }
 

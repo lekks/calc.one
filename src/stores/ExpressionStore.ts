@@ -37,6 +37,7 @@ class ExpressionStore {
     reactActions(action: Event) {
         switch (action.action) {
             case Actions.ADD_NUMBER:
+            case Actions.OPERATION:
                 this.addExpression(action.payload);
                 this.emitter.emit(CHANGE_EVENT);
                 break;
