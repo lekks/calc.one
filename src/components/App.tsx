@@ -1,15 +1,15 @@
 import React from 'react';
 import './App.css';
 import Button from './Button';
-import ExpressionPanel from "./ExpressionPanel";
+import ExpressionStack from "./ExpressionStack";
 import ResultPanel from "./ResultPanel";
-import Actions from "../actions/Actions";
+import Actions from "../dispatcher/Actions";
 
 const App: React.FC = () => {
 
   return (
       <div className="App">
-          <ExpressionPanel/>
+        <ExpressionStack/>
           <ResultPanel/>
           <table>
             <tbody>
@@ -39,6 +39,7 @@ const App: React.FC = () => {
             </tr>
             <tr>
               <td><Button capture="<-" tag="bs" keybind="Backspace" action={Actions.BS}/></td>
+              <td><Button capture="Enter" tag="enter" keybind="Enter" action={Actions.ENTER}/></td>
             </tr>
             </tbody>
           </table>

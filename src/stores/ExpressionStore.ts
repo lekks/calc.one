@@ -1,11 +1,14 @@
 import {EventEmitter} from 'fbemitter';
 
 import {AppDispatcher, Event} from "../dispatcher/AppDispatcher";
-import Actions from "../actions/Actions";
+import Actions from "../dispatcher/Actions";
 
 export type ExpressionType = string;
 export type ResultType = string;
-const CHANGE_EVENT = 'change';
+
+export enum ExpressionEvents {
+    CHANGE_EVENT = "CHANGE_EVENT",
+}
 
 class ExpressionStore {
     private expression: ExpressionType = "";
@@ -30,8 +33,8 @@ class ExpressionStore {
         return this.result;
     }
 
-    addChangeListener(callback: () => void) {
-        return this.emitter.addListener(CHANGE_EVENT, callback);
+    addChangeListener(event: ExpressionEvents, callback: () => void) {
+        return this.emitter.addListener(event, callback);
     }
 
     reactActions(action: Event) {
@@ -39,15 +42,15 @@ class ExpressionStore {
             case Actions.ADD_NUMBER:
             case Actions.OPERATION:
                 this.addExpression(action.payload);
-                this.emitter.emit(CHANGE_EVENT);
+                this.emitter.emit(ExpressionEvents.CHANGE_EVENT);
                 break;
             case Actions.CLEAR:
                 this.clear();
-                this.emitter.emit(CHANGE_EVENT);
+                this.emitter.emit(ExpressionEvents.CHANGE_EVENT);
                 break;
             case Actions.BS:
                 if (this.backSpace()) {
-                    this.emitter.emit(CHANGE_EVENT);
+                    this.emitter.emit(ExpressionEvents.CHANGE_EVENT);
                 }
                 break;
         }

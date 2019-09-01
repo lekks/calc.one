@@ -2,7 +2,8 @@ enum Actions {
     ADD_NUMBER,
     OPERATION,
     CLEAR,
-    BS
+    BS,
+    ENTER
 }
 
 export default Actions;

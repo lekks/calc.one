@@ -1,6 +1,6 @@
 import React from 'react';
 import {buttonClick} from '../actions/ButtonActions';
-import Actions from "../actions/Actions";
+import Actions from "../dispatcher/Actions";
 
 interface Props {
     capture: string;
@@ -21,9 +21,9 @@ class Button extends React.Component<Props, any> {
 
     public render() {
         return (
-            <button onClick={this.onClick} className={"Button"}>
+            <div onClick={this.onClick} className={"Button"}>
                 [{this.props.capture}]
-            </button>
+            </div>
         );
     }
 
@@ -35,6 +35,7 @@ class Button extends React.Component<Props, any> {
         if (e.key === this.props.keybind) {
             this.onClick()
         }
+        console.log(e)
     }
 }
 
