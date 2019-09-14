@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import Button from './Button';
 import ExpressionStack from "./ExpressionStack";
-import ResultPanel from "./ResultPanel";
+import InputPanel from "./InputPanel";
 import Actions from "../dispatcher/Actions";
 
 const App: React.FC = () => {
@@ -10,7 +10,7 @@ const App: React.FC = () => {
   return (
       <div className="App">
         <ExpressionStack/>
-          <ResultPanel/>
+          <InputPanel/>
           <table>
             <tbody>
             <tr>

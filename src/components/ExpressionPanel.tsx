@@ -1,14 +1,15 @@
 import React from 'react';
+import {Expression} from "../stores/ExpressionStore";
 
 
 interface Props {
-    text: string;
+    exr: Expression;
 }
 
 const ExpressionPanel: React.FC<Props> = (expression) => {
     return (
         <div className="Panel">
-            :{expression.text}
+            :{expression.exr.formula}
         </div>
     );
 };

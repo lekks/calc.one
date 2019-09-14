@@ -1,11 +1,11 @@
 import React from 'react';
 import FBEmitter from "fbemitter";
 
-import {ExpressionEvents, expressionStore, ExpressionType} from "../stores/ExpressionStore";
+import {Expression, ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
 import ExpressionPanel from "./ExpressionPanel";
 
 interface State {
-    expression: ExpressionType;
+    expressions: Expression[];
 }
 
 class ExpressionStack extends React.Component<any, State> {
@@ -14,11 +14,11 @@ class ExpressionStack extends React.Component<any, State> {
     constructor(props: {}) {
         super(props,);
         this.state = ExpressionStack.getStateFromStores();
-        this.eventSubscription = expressionStore.addChangeListener(ExpressionEvents.CHANGE_EVENT, this.onChange);
+        this.eventSubscription = expressionStore.addChangeListener(ExpressionEvents.STACK_CHANGE_EVENT, this.onChange);
     }
 
     private static getStateFromStores(): State {
-        return {expression: expressionStore.getExpression()};
+        return {expressions: expressionStore.getStack()};
     }
 
     public componentWillUnmount() {
@@ -28,7 +28,7 @@ class ExpressionStack extends React.Component<any, State> {
     render() {
         return (
             <div className="Stack">
-                {[this.state.expression].map(text => <ExpressionPanel text={text}/>)}
+                {this.state.expressions.map((expr: Expression) => <ExpressionPanel exr={expr}/>)}
             </div>
         );
     }
