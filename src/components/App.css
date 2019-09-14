@@ -1,26 +1,29 @@
+
+body {
+    padding-top: 10%;
+}
+
 .App {
-  text-align: center;
-    background-color: #282c34;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    height: fit-content;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 5px;
+    border: 1px solid;
+
 }
 
 .Panel {
+    padding: 5px;
     border: 1px solid;
 }
 
 .Button {
-  border-radius: 8px;
-  border: 1px solid #dcdcdc;
-  display: inline-block;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: bold;
-  padding: 6px 24px;
-  text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 24px;
+    text-decoration: none;
 }
