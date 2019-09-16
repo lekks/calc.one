@@ -1,11 +1,10 @@
 import React from 'react';
 import FBEmitter from "fbemitter";
 
-import {ExpressionEvents, expressionStore, Result} from "../stores/ExpressionStore";
+import {ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
 
 interface State {
     text: string;
-    result: Result;
 }
 
 class InputPanel extends React.Component<any, State> {
@@ -19,8 +18,7 @@ class InputPanel extends React.Component<any, State> {
 
     private static getStateFromStores(): State {
         return {
-            text: expressionStore.getInput(),
-            result: expressionStore.getResult()
+            text: expressionStore.getInput()
         };
     }
 
@@ -32,7 +30,6 @@ class InputPanel extends React.Component<any, State> {
         return (
             <div className="Panel">
                 :{this.state.text}
-                ={this.state.result}
             </div>
         );
     }

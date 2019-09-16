@@ -1,8 +1,9 @@
 import React from 'react';
 import FBEmitter from "fbemitter";
 
-import {Expression, ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
+import {ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
 import ExpressionPanel from "./ExpressionPanel";
+import {Expression} from "../stores/Expression";
 
 interface State {
     expressions: Expression[];
@@ -28,7 +29,7 @@ class ExpressionStack extends React.Component<any, State> {
     render() {
         return (
             <div className="Stack">
-                {this.state.expressions.map((expr: Expression) => <ExpressionPanel exr={expr}/>)}
+                {this.state.expressions.map((expr: Expression) => <ExpressionPanel expression={expr}/>)}
             </div>
         );
     }

@@ -2,18 +2,9 @@ import {EventEmitter} from 'fbemitter';
 
 import {AppDispatcher, Event} from "../dispatcher/AppDispatcher";
 import Actions from "../dispatcher/Actions";
-
-
-export class Expression  { //TODO Move out
-    formula: string;
-    result: number = NaN;
-    constructor(formula: string) {
-        this.formula = formula
-    }
-} ;
+import {Expression} from "./Expression";
 
 export type InputType = string;
-export type Result = string;
 
 export enum ExpressionEvents {
     INPUT_CHANGE_EVENT = "INPUT_CHANGE_EVENT",
@@ -22,7 +13,6 @@ export enum ExpressionEvents {
 
 class ExpressionStore {
     private expression: InputType = "";
-    private result: Result = "";
     private stack: Expression[] = [];
     private emitter: EventEmitter;
     private dispatcher: typeof AppDispatcher;
@@ -40,9 +30,6 @@ class ExpressionStore {
         return this.expression;
     }
 
-    getResult(): Result {
-        return this.result;
-    }
 
     getStack(): Expression[] {
         return this.stack;
@@ -83,29 +70,18 @@ class ExpressionStore {
         }
     }
 
-    private evaluate() {
-        try {
-            // eslint-disable-next-line no-eval
-            this.result = eval(this.expression);
-        } catch (e) {
-            this.result = "?";
-        }
-    }
 
     private addInput(expr: string) {
         this.expression += expr;
-        this.evaluate();
     }
 
     private clear() {
         this.expression = "";
-        this.result = "";
     }
 
     private backSpace(): boolean {
         if (this.expression.length > 0) {
             this.expression = this.expression.slice(0, -1);
-            this.evaluate();
             return true;
         }
         return false;
