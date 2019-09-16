@@ -9,7 +9,7 @@ interface Props {
 const ExpressionPanel: React.FC<Props> = (expression) => {
     return (
         <div className="Panel">
-            :{expression.expression.formula}={expression.expression.getResult()}
+            :{expression.expression.getFormula()}={expression.expression.getResult()}
         </div>
     );
 };

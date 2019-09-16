@@ -2,7 +2,7 @@ import {EventEmitter} from 'fbemitter';
 
 import {AppDispatcher, Event} from "../dispatcher/AppDispatcher";
 import Actions from "../dispatcher/Actions";
-import {Expression} from "./Expression";
+import {AriphmeticExpression, Expression, NumberExpression} from "./Expression";
 
 export type InputType = string;
 
@@ -39,18 +39,17 @@ class ExpressionStore {
         return this.emitter.addListener(event, callback);
     }
 
-    push():boolean {
-        this.stack.push(new Expression(this.expression));
-        // this.clear();
-        return true
-    }
-
     reactActions(action: Event) {
         switch (action.action) {
             case Actions.ADD_NUMBER:
-            case Actions.OPERATION:
                 this.addInput(action.payload);
                 this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+                break;
+            case Actions.OPERATION:
+                if (this.addOperation(action.payload)) {
+                    this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+                    this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
+                }
                 break;
             case Actions.CLEAR:
                 this.clear();
@@ -73,6 +72,27 @@ class ExpressionStore {
 
     private addInput(expr: string) {
         this.expression += expr;
+    }
+
+    private currentExpression():Expression {
+        return new NumberExpression(this.expression)
+    }
+
+    private addOperation(oper: string): boolean {
+        const lastExpressopn:Expression | undefined = this.stack.pop();
+        if (lastExpressopn) {
+            this.stack.push(new AriphmeticExpression(oper, lastExpressopn, this.currentExpression()));
+            this.clear();
+            return true;
+        } else {
+            return false; //TODO show error
+        }
+    }
+
+    push():boolean {
+        this.stack.push(this.currentExpression());
+        this.clear();
+        return true
     }
 
     private clear() {
