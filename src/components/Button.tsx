@@ -35,7 +35,7 @@ class Button extends React.Component<Props, any> {
         if (e.key === this.props.keybind) {
             this.onClick()
         }
-        console.log(e)
+        // console.log(e)
     }
 }
 

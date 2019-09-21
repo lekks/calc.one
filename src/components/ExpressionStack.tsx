@@ -29,7 +29,7 @@ class ExpressionStack extends React.Component<any, State> {
     render() {
         return (
             <div className="Stack">
-                {this.state.expressions.map((expr: Expression) => <ExpressionPanel expression={expr}/>)}
+                {this.state.expressions.map((expr: Expression, index) => <ExpressionPanel expression={expr} key={index}/>)}
             </div>
         );
     }
