@@ -6,17 +6,24 @@ export type Formula = string;
 
 export interface Expression {
     getResult(): Result;
+
     getFormula(): Formula;
-    getRank():OperationRank
+
+    getRank(): OperationRank
 }
 
 export class NumberExpression implements Expression {
     private readonly formula: Formula;
     private readonly result_value: number;
 
-    constructor(formula: string) {
-        this.formula = formula;
-        this.result_value = parseFloat(this.formula);
+    constructor(value: string | number) {
+        if (typeof value === 'number') {
+            this.formula = value.toString();
+            this.result_value = value;
+        } else {
+            this.result_value = parseFloat(value);
+            this.formula = value;
+        }
     }
 
     getResult(): Result {
@@ -27,7 +34,7 @@ export class NumberExpression implements Expression {
         return this.formula
     }
 
-    getRank():number {
+    getRank(): number {
         return OperationRank.NUMBER
     }
 
@@ -38,23 +45,17 @@ export class AriphmeticExpression implements Expression {
     private readonly formula: Formula;
     private readonly result_value: number;
     private readonly rank: OperationRank;
+    private readonly associative: boolean;
 
-    constructor(rank: OperationRank, oper: Operation, ...operands:Expression[]) {
+    constructor(rank: OperationRank, associative: boolean | undefined, oper: Operation, ...operands: Expression[]) {
         this.rank = rank;
-        this.formula = this.buildFormula(oper,operands[0],operands[1]);
+        this.associative = !!associative;
+        this.formula = this.buildFormula(oper, operands[0], operands[1]);
         this.result_value = AriphmeticExpression.evaluate(this.formula);
-
     }
 
-    private buildFormula(oper: Operation, left: Expression, right: Expression):Formula {
-        const leftStr = this.buildFormulaStr(left);
-        const rightStr = this.buildFormulaStr(right);
-
-        return `${leftStr} ${oper} ${rightStr}`
-    }
-
-    buildFormulaStr(expr: Expression) {
-            return this.getRank() > expr.getRank() ? `(${expr.getFormula()})` : `${expr.getFormula()}`;
+    static buildOperandFormulaStr(expr: Expression, toEmbrace: boolean) {
+        return toEmbrace ? `(${expr.getFormula()})` : `${expr.getFormula()}`;
     }
 
     private static evaluate(formula: Formula): number {
@@ -74,8 +75,23 @@ export class AriphmeticExpression implements Expression {
         return this.formula;
     }
 
-    getRank():OperationRank {
+    getRank(): OperationRank {
         return this.rank;
+    }
+
+    private buildFormula(oper: Operation, left: Expression, right: Expression): Formula {
+        const leftStr = AriphmeticExpression.buildOperandFormulaStr(left, this.needLeftParenthesis(left));
+        const rightStr = AriphmeticExpression.buildOperandFormulaStr(right, this.needRightParenthesis(right));
+
+        return `${leftStr} ${oper} ${rightStr}`
+    }
+
+    private needLeftParenthesis(expr: Expression): boolean {
+        return this.getRank() > expr.getRank()
+    }
+
+    private needRightParenthesis(expr: Expression): boolean {
+        return this.getRank() > expr.getRank() || (!this.associative && this.getRank() === expr.getRank())
     }
 
 }

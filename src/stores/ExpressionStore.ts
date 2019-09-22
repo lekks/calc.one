@@ -2,9 +2,9 @@ import {EventEmitter} from 'fbemitter';
 
 import {AppDispatcher, Event} from "../dispatcher/AppDispatcher";
 import Actions from "../dispatcher/Actions";
-import {AriphmeticExpression, Expression, NumberExpression} from "./Expression";
+import {Expression, NumberExpression} from "./Expression";
 import {Editor} from "./Editor";
-import {operations} from "./operations";
+import ops from "./operations";
 
 export enum ExpressionEvents {
     INPUT_CHANGE_EVENT = "INPUT_CHANGE_EVENT",
@@ -85,8 +85,11 @@ class ExpressionStore {
     }
 
     private addOperation(oper: string): boolean {
-        const {operandsNumber, rank} = operations[oper];
-        const stackGet = operandsNumber - (this.editor.notEmpty() ? 1 : 0);
+        if (!ops.defined(oper)) {
+            return false
+        }
+        const opnNum: number = ops.operandsNumber(oper);
+        const stackGet = opnNum - (this.editor.notEmpty() ? 1 : 0);
         if (stackGet > this.stack.length) {
             return false
         }
@@ -95,8 +98,7 @@ class ExpressionStore {
             operandsExpr.push(this.editorExpression());
             this.editor.clear();
         }
-        const combinedExpression = new AriphmeticExpression(rank, oper, ...operandsExpr.reverse())
-        this.stack.push(combinedExpression);
+        this.stack.push(ops.buildExpression(oper, ...operandsExpr));
         return true;
     }
 
