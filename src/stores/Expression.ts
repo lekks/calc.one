@@ -6,10 +6,7 @@ export enum OperationRank {
     NUMBER
 }
 
-export type Result = string;
-export type Operation = string;
-export type TexBuilder = (...args: string[]) => string;
-
+export type Result = number;
 export interface Expression {
     getResult(): Result;
     getFormula(): string;
@@ -33,7 +30,7 @@ export class NumberExpression implements Expression {
     }
 
     getResult(): Result {
-        return isNaN(this.result_value) ? "?" : String(this.result_value);
+        return this.result_value;
     }
 
     getFormula(): string {
@@ -54,22 +51,40 @@ export class NumberExpression implements Expression {
 
 }
 
-export class AriphmeticExpression implements Expression {
+type ArithmeticTexBuilder = (leftStr: string, rightStr: string, leftExpr: Expression, rightExpr: Expression) => string;
 
+export class ArithmeticExpression implements Expression {
     private readonly formula: string;
     private readonly tex_formula: string;
     private readonly result_value: number;
-    private readonly rank: OperationRank;
-    private readonly associative: boolean;
     private readonly explicitTexPareses: boolean;
 
-    constructor(tex: TexBuilder, rank: OperationRank, associative: boolean | undefined, explicitTexPareses: boolean | undefined, oper: Operation, ...operands: Expression[]) {
-        this.rank = rank;
-        this.associative = !!associative;
-        this.explicitTexPareses = !!explicitTexPareses;
-        this.formula = this.buildFormula(oper, operands[0], operands[1]);
-        this.tex_formula = this.buildTex(tex, operands[0], operands[1]);
-        this.result_value = AriphmeticExpression.evaluate(this.formula);
+    constructor(tex: ArithmeticTexBuilder,
+                calc: (...args: Result[]) => Result,
+                private readonly rank: OperationRank,
+                private readonly associative: boolean,
+                explicitTexPareses: boolean,
+                symbol: string,
+                private readonly left: Expression,
+                private readonly right: Expression) {
+        this.explicitTexPareses = explicitTexPareses;
+        this.formula = this.buildFormula(symbol);
+        this.tex_formula = this.buildTex(tex);
+        this.result_value = calc(left.getResult(), right.getResult());
+    }
+
+    getResult(): Result {
+        return this.result_value;
+    }
+
+    private buildFormula(symbol: string): string {
+        const leftStr = ArithmeticExpression.buildOperandFormulaStr(this.left, this.needLeftParenthesis());
+        const rightStr = ArithmeticExpression.buildOperandFormulaStr(this.right, this.needRightParenthesis());
+        return `${leftStr} ${symbol} ${rightStr}`
+    }
+
+    private needLeftParenthesis(): boolean {
+        return this.rank > this.left.getRank()
     }
 
     static buildOperandFormulaStr(expr: Expression, toEmbrace: boolean): string {
@@ -80,17 +95,8 @@ export class AriphmeticExpression implements Expression {
         return toEmbrace ? `(${expr.getTex()})` : `${expr.getTex()}`;
     }
 
-    private static evaluate(formula: string): number {
-        try {
-            // eslint-disable-next-line no-eval
-            return eval(formula);
-        } catch (e) {
-            return NaN;
-        }
-    }
-
-    getResult(): Result {
-        return isNaN(this.result_value) ? "?" : String(this.result_value);
+    private needRightParenthesis(): boolean {
+        return this.rank > this.right.getRank() || (!this.associative && this.rank === this.right.getRank())
     }
 
     getFormula(): string {
@@ -109,92 +115,10 @@ export class AriphmeticExpression implements Expression {
         return this.explicitTexPareses;
     }
 
-    private buildFormula(oper: Operation, left: Expression, right: Expression): string {
-        const leftStr = AriphmeticExpression.buildOperandFormulaStr(left, this.needLeftParenthesis(left));
-        const rightStr = AriphmeticExpression.buildOperandFormulaStr(right, this.needRightParenthesis(right));
-
-        return `${leftStr} ${oper} ${rightStr}`
-    }
-
-    private buildTex(builder: TexBuilder, left: Expression, right: Expression): string {
-        const leftStr = AriphmeticExpression.buildOperandTexStr(left, this.needLeftParenthesis(left) && left.useExplicitTexPareses());
-        const rightStr = AriphmeticExpression.buildOperandTexStr(right, this.needRightParenthesis(right) && right.useExplicitTexPareses());
-
-        return builder(leftStr, rightStr);
-    }
-
-    private needLeftParenthesis(expr: Expression): boolean {
-        return this.getRank() > expr.getRank()
-    }
-
-    private needRightParenthesis(expr: Expression): boolean {
-        return this.getRank() > expr.getRank() || (!this.associative && this.getRank() === expr.getRank())
+    private buildTex(builder: ArithmeticTexBuilder): string {
+        const leftStr = ArithmeticExpression.buildOperandTexStr(this.left, this.needLeftParenthesis() && this.left.useExplicitTexPareses());
+        const rightStr = ArithmeticExpression.buildOperandTexStr(this.right, this.needRightParenthesis() && this.right.useExplicitTexPareses());
+        return builder(leftStr, rightStr, this.left, this.right);
     }
 }
 
-export class DivideExpression implements Expression {
-
-    private readonly formula: string;
-    private readonly tex_formula: string;
-    private readonly result_value: number;
-    private readonly associative: boolean = false;
-    private readonly explicitTexPareses: boolean = false;
-
-    constructor(...operands: Expression[]) {
-        this.formula = this.buildFormula('/', operands[0], operands[1]);
-        this.tex_formula = DivideExpression.buildTex(operands[0], operands[1]);
-        this.result_value = DivideExpression.evaluate(this.formula);
-    }
-
-    static buildOperandFormulaStr(expr: Expression, toEmbrace: boolean): string {
-        return toEmbrace ? `(${expr.getFormula()})` : `${expr.getFormula()}`;
-    }
-
-    private static evaluate(formula: string): number {
-        try {
-            // eslint-disable-next-line no-eval
-            return eval(formula);
-        } catch (e) {
-            return NaN;
-        }
-    }
-
-    private static buildTex(left: Expression, right: Expression): string {
-        return `\\frac{${left.getTex()}}{${right.getTex()}}`;
-    }
-
-    getResult(): Result {
-        return isNaN(this.result_value) ? "?" : String(this.result_value);
-    }
-
-    getFormula(): string {
-        return this.formula;
-    }
-
-    getRank(): OperationRank {
-        return OperationRank.MULT__DIV;
-    }
-
-    getTex(): string {
-        return this.tex_formula;
-    }
-
-    useExplicitTexPareses(): boolean {
-        return this.explicitTexPareses;
-    }
-
-    private buildFormula(oper: Operation, left: Expression, right: Expression): string {
-        const leftStr = DivideExpression.buildOperandFormulaStr(left, this.needLeftParenthesis(left));
-        const rightStr = DivideExpression.buildOperandFormulaStr(right, this.needRightParenthesis(right));
-
-        return `${leftStr} ${oper} ${rightStr}`
-    }
-
-    private needLeftParenthesis(expr: Expression): boolean {
-        return this.getRank() > expr.getRank()
-    }
-
-    private needRightParenthesis(expr: Expression): boolean {
-        return this.getRank() > expr.getRank() || (!this.associative && this.getRank() === expr.getRank())
-    }
-}

@@ -10,7 +10,8 @@ interface Props {
 }
 
 const ExpressionPanel: React.FC<Props> = (expression) => {
-    const texStr: string = `${expression.expression.getTex()}=${expression.expression.getResult()}`;
+    const resStr: string = isNaN(expression.expression.getResult()) ? "?" : String(expression.expression.getResult());
+    const texStr: string = `${expression.expression.getTex()}=${resStr}`;
     return (
         <div className="Panel">
             <BlockMath math={texStr}/>
