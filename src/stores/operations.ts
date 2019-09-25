@@ -1,4 +1,4 @@
-import {AriphmeticExpression, Expression, OperationRank} from "./Expression";
+import {AriphmeticExpression, DivideExpression, Expression, OperationRank} from "./Expression";
 
 
 interface OptParam {
@@ -35,9 +35,7 @@ export const operations:{[opt:string]:OptParam} = {
     "/": {
         operandsNumber: 2,
         build: function (a: Expression, b: Expression) {
-            return new AriphmeticExpression((a, b) => {
-                return `\\frac{${a}}{${b}}`
-            }, OperationRank.MULT__DIV, false, false, "/", a, b)
+            return new DivideExpression(a, b)
         },
     }
 };

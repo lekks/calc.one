@@ -12,13 +12,9 @@ export type TexBuilder = (...args: string[]) => string;
 
 export interface Expression {
     getResult(): Result;
-
     getFormula(): string;
-
     getRank(): OperationRank;
-
     getTex(): string;
-
     useExplicitTexPareses(): boolean;
 }
 
@@ -134,6 +130,71 @@ export class AriphmeticExpression implements Expression {
     private needRightParenthesis(expr: Expression): boolean {
         return this.getRank() > expr.getRank() || (!this.associative && this.getRank() === expr.getRank())
     }
-
 }
 
+export class DivideExpression implements Expression {
+
+    private readonly formula: string;
+    private readonly tex_formula: string;
+    private readonly result_value: number;
+    private readonly associative: boolean = false;
+    private readonly explicitTexPareses: boolean = false;
+
+    constructor(...operands: Expression[]) {
+        this.formula = this.buildFormula('/', operands[0], operands[1]);
+        this.tex_formula = DivideExpression.buildTex(operands[0], operands[1]);
+        this.result_value = DivideExpression.evaluate(this.formula);
+    }
+
+    static buildOperandFormulaStr(expr: Expression, toEmbrace: boolean): string {
+        return toEmbrace ? `(${expr.getFormula()})` : `${expr.getFormula()}`;
+    }
+
+    private static evaluate(formula: string): number {
+        try {
+            // eslint-disable-next-line no-eval
+            return eval(formula);
+        } catch (e) {
+            return NaN;
+        }
+    }
+
+    private static buildTex(left: Expression, right: Expression): string {
+        return `\\frac{${left.getTex()}}{${right.getTex()}}`;
+    }
+
+    getResult(): Result {
+        return isNaN(this.result_value) ? "?" : String(this.result_value);
+    }
+
+    getFormula(): string {
+        return this.formula;
+    }
+
+    getRank(): OperationRank {
+        return OperationRank.MULT__DIV;
+    }
+
+    getTex(): string {
+        return this.tex_formula;
+    }
+
+    useExplicitTexPareses(): boolean {
+        return this.explicitTexPareses;
+    }
+
+    private buildFormula(oper: Operation, left: Expression, right: Expression): string {
+        const leftStr = DivideExpression.buildOperandFormulaStr(left, this.needLeftParenthesis(left));
+        const rightStr = DivideExpression.buildOperandFormulaStr(right, this.needRightParenthesis(right));
+
+        return `${leftStr} ${oper} ${rightStr}`
+    }
+
+    private needLeftParenthesis(expr: Expression): boolean {
+        return this.getRank() > expr.getRank()
+    }
+
+    private needRightParenthesis(expr: Expression): boolean {
+        return this.getRank() > expr.getRank() || (!this.associative && this.getRank() === expr.getRank())
+    }
+}
