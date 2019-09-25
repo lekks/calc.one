@@ -10,7 +10,7 @@ function buildTestExpr(a: number | string, op1: string, b: number | string, op3:
     return ops.buildExpression(op3, left, right)
 }
 
-describe("Operations parentheses test", () => {
+describe("Expressions composition test", () => {
 
     test.each([
         [1, "+", 2, "+", 3, "+", 4, "1 + 2 + 3 + 4"],
@@ -29,9 +29,32 @@ describe("Operations parentheses test", () => {
         [1, "*", 2, "/", 3, "*", 4, "1 * 2 / (3 * 4)"],
         [1, "/", 2, "/", 3, "+", 4, "1 / 2 / (3 + 4)"],
         [1, "+", 2, "/", 3, "-", 4, "(1 + 2) / (3 - 4)"],
-    ])('test proper parentheses skip', (a, op1, b, op3, c, op2, d, expected) => {
-        const expr = buildTestExpr(a, String(op1), b, String(op3), c, String(op2), d);
+    ])('test proper parentheses', (a, op1, b, op3, c, op2, d, expected) => {
+        const expr = buildTestExpr(a, op1 as string, b, op3 as string, c, op2 as string, d);
         expect(expr.getFormula()).toBe(expected)
+    });
+
+    test.each([
+        [1, "+", 2, "+", 3, "+", 4, "1+2+3+4"],
+        [1, "*", 2, "+", 3, "-", 4, "1\\times2+3-4"],
+        [1, "/", 2, "+", 3, "*", 4, "\\frac{1}{2}+3\\times4"],
+        [1, "-", 2, "+", 3, "/", 4, "1-2+\\frac{3}{4}"],
+        [1, "-", 2, "-", 3, "-", 4, "1-2-(3-4)"],
+        [1, "-", 2, "-", 3, "+", 4, "1-2-(3+4)"],
+        [1, "*", 2, "-", 3, "*", 4, "1\\times2-3\\times4"],
+        [1, "*", 2, "-", 3, "/", 4, "1\\times2-\\frac{3}{4}"],
+        [1, "+", 2, "*", 3, "+", 4, "(1+2)\\times(3+4)"],
+        [1, "/", 2, "*", 3, "-", 4, "\\frac{1}{2}\\times(3-4)"],
+        [1, "+", 2, "*", 3, "*", 4, "(1+2)\\times3\\times4"],
+        [1, "+", 2, "*", 3, "/", 4, "(1+2)\\times\\frac{3}{4}"],
+        [1, "+", 2, "/", 3, "/", 4, "\\frac{1+2}{\\frac{3}{4}}"],
+        [1, "*", 2, "/", 3, "*", 4, "\\frac{1\\times2}{3\\times4}"],
+        [1, "/", 2, "/", 3, "+", 4, "\\frac{\\frac{1}{2}}{3+4}"],
+        [1, "+", 2, "/", 3, "-", 4, "\\frac{1+2}{3-4}"],
+        [1, "/", 2, "/", 3, "/", 4, "\\frac{\\frac{1}{2}}{\\frac{3}{4}}"],
+    ])('test tex generation', (a, op1, b, op3, c, op2, d, expected) => {
+        const expr = buildTestExpr(a, op1 as string, b, op3 as string, c, op2 as string, d);
+        expect(expr.getTex()).toBe(expected)
     })
 
 

@@ -2,12 +2,12 @@ import {AriphmeticExpression, DivideExpression, Expression, OperationRank} from 
 
 
 interface OptParam {
-    operandsNumber:number,
+    operandsNumber: number,
 
     build(...operands: Expression[]): Expression,
 }
 
-export const operations:{[opt:string]:OptParam} = {
+const operationsTable: { [opt: string]: OptParam } = {
     "+": {
         operandsNumber: 2,
         build: function (a: Expression, b: Expression) {
@@ -42,15 +42,15 @@ export const operations:{[opt:string]:OptParam} = {
 
 export default {
     buildExpression(operation: string, ...operands: Expression[]): Expression {
-        return operations[operation].build(...operands)
+        return operationsTable[operation].build(...operands)
     },
 
     operandsNumber(operation: string): number {
-        return operations[operation].operandsNumber;
+        return operationsTable[operation].operandsNumber;
     },
 
     defined(operation: string): boolean {
-        return operation in operations;
+        return operation in operationsTable;
     }
 }
 
