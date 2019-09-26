@@ -28,7 +28,7 @@ class InputPanel extends React.Component<any, State> {
 
     render() {
         return (
-            <div className="Panel">
+            <div className="Input">
                 :{this.state.text}
             </div>
         );

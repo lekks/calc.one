@@ -11,7 +11,6 @@ export enum ExpressionEvents {
     STACK_CHANGE_EVENT = "STACK_CHANGE_EVENT",
 }
 
-
 class ExpressionStore {
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
@@ -27,20 +26,20 @@ class ExpressionStore {
         });
     }
 
-    getInput(): string {
+    public getInput(): string {
         return this.editor.getInput();
     }
 
 
-    getStack(): Expression[] {
+    public getStack(): Expression[] {
         return this.stack;
     }
 
-    addChangeListener(event: ExpressionEvents, callback: () => void) {
+    public addChangeListener(event: ExpressionEvents, callback: () => void) {
         return this.emitter.addListener(event, callback);
     }
 
-    reactActions(action: Event) {
+    private reactActions(action: Event) {
         switch (action.action) {
             case Actions.ADD_NUMBER:
                 this.editor.addSymbol(action.payload);
@@ -52,9 +51,11 @@ class ExpressionStore {
                     this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
                 }
                 break;
+            case Actions.DEL:
+                this.del();
+                break;
             case Actions.CLEAR:
-                this.editor.clear();
-                this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+                this.clear();
                 break;
             case Actions.BS:
                 if (this.editor.backSpace()) {
@@ -67,16 +68,47 @@ class ExpressionStore {
                     this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
                 }
                 break;
+            case Actions.SWAP:
+                this.swap();
+                break;
         }
     }
 
-    push(): boolean {
+    private push(): boolean {
         if (this.editor.notEmpty()) {
             this.stack.push(this.editorExpression());
             this.editor.clear();
             return true
+        } else if (this.stack.length > 0) {
+            this.stack.push(this.stack[this.stack.length - 1]);
+            return true
         } else {
             return false
+        }
+    }
+
+    private swap() {
+        if (this.stack.length >= 2) {
+            [this.stack[this.stack.length - 1], this.stack[this.stack.length - 2]] = [this.stack[this.stack.length - 2], this.stack[this.stack.length - 1]];
+            this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
+        }
+    }
+
+    private clear() {
+        this.editor.clear();
+        this.stack = [];
+        this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+        this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
+    }
+
+
+    private del() {
+        if (this.editor.notEmpty()) {
+            this.editor.clear();
+            this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+        } else if (this.stack.length > 0) {
+            this.stack.pop();
+            this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
         }
     }
 

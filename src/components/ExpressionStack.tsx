@@ -27,9 +27,10 @@ class ExpressionStack extends React.Component<any, State> {
     }
 
     render() {
+        const reversed = this.state.expressions.slice().reverse();
         return (
             <div className="Stack">
-                {this.state.expressions.map((expr: Expression, index) => <ExpressionPanel expression={expr} key={index}/>)}
+                {reversed.map((expr: Expression, index) => <ExpressionPanel expression={expr} key={index}/>)}
             </div>
         );
     }

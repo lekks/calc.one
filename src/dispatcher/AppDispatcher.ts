@@ -2,7 +2,7 @@ import {Dispatcher} from 'flux';
 import Actions from "./Actions";
 
 export class TypedEvent<P> {
-  constructor(public action: Actions, public payload: P) {
+  constructor(public action: Actions, public payload?: P) {
   }
 }
 

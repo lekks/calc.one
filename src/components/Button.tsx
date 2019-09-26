@@ -4,7 +4,7 @@ import Actions from "../dispatcher/Actions";
 
 interface Props {
     capture: string;
-    tag: string;
+    tag?: string;
     action: Actions;
     keybind?: string;
 }

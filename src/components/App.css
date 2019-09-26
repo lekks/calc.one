@@ -12,9 +12,21 @@ body {
 
 }
 
-.Panel {
-    padding: 5px;
-    border: 1px solid;
+.Input {
+    padding: 10px;
+    font-size: 18px;
+    border-bottom: 1px solid;
+}
+
+.Expression {
+    border-bottom: 1px solid;
+}
+
+.Stack {
+    height: 30vh;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 .Button {
@@ -22,7 +34,7 @@ body {
     border: 1px solid;
     display: inline-block;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
     padding: 6px 24px;
     text-decoration: none;
