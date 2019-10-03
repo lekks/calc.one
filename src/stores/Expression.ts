@@ -11,7 +11,8 @@ export interface Expression {
     getResult(): Result;
     getRank(): OperationRank;
     getTex(): string;
-    useExplicitTexPareses(): boolean;
+
+    useExplicitTexParentheses(): boolean;
 }
 
 export class NumberExpression implements Expression {
@@ -40,7 +41,7 @@ export class NumberExpression implements Expression {
         return this.tex;
     }
 
-    useExplicitTexPareses(): boolean {
+    useExplicitTexParentheses(): boolean {
         return false;
     }
 
@@ -48,19 +49,23 @@ export class NumberExpression implements Expression {
 
 type ArithmeticTexBuilder = (leftStr: string, rightStr: string, leftExpr: Expression, rightExpr: Expression) => string;
 
+function buildOperandTexStr(expr: Expression, toEmbrace: boolean): string {
+    return toEmbrace ? `\\left(${expr.getTex()}\\right)` : `${expr.getTex()}`;
+}
+
 export class ArithmeticExpression implements Expression {
     private readonly tex_formula: string;
     private readonly result_value: number;
-    private readonly explicitTexPareses: boolean;
+    private readonly explicitTexParentheses: boolean;
 
     constructor(tex: ArithmeticTexBuilder,
                 calc: (...args: Result[]) => Result,
                 private readonly rank: OperationRank,
                 private readonly associative: boolean,
-                explicitTexPareses: boolean,
+                explicitTexParentheses: boolean,
                 private readonly left: Expression,
                 private readonly right: Expression) {
-        this.explicitTexPareses = explicitTexPareses;
+        this.explicitTexParentheses = explicitTexParentheses;
         this.tex_formula = this.buildTex(tex);
         this.result_value = calc(left.getResult(), right.getResult());
     }
@@ -71,10 +76,6 @@ export class ArithmeticExpression implements Expression {
 
     private needLeftParenthesis(): boolean {
         return this.rank > this.left.getRank()
-    }
-
-    static buildOperandTexStr(expr: Expression, toEmbrace: boolean): string {
-        return toEmbrace ? `\\left(${expr.getTex()}\\right)` : `${expr.getTex()}`;
     }
 
     private needRightParenthesis(): boolean {
@@ -89,13 +90,13 @@ export class ArithmeticExpression implements Expression {
         return this.tex_formula;
     }
 
-    useExplicitTexPareses(): boolean {
-        return this.explicitTexPareses;
+    useExplicitTexParentheses(): boolean {
+        return this.explicitTexParentheses;
     }
 
     private buildTex(builder: ArithmeticTexBuilder): string {
-        const leftStr = ArithmeticExpression.buildOperandTexStr(this.left, this.needLeftParenthesis() && this.left.useExplicitTexPareses());
-        const rightStr = ArithmeticExpression.buildOperandTexStr(this.right, this.needRightParenthesis() && this.right.useExplicitTexPareses());
+        const leftStr = buildOperandTexStr(this.left, this.needLeftParenthesis() && this.left.useExplicitTexParentheses());
+        const rightStr = buildOperandTexStr(this.right, this.needRightParenthesis() && this.right.useExplicitTexParentheses());
         return builder(leftStr, rightStr, this.left, this.right);
     }
 }
@@ -106,10 +107,10 @@ export class FunctionExpression implements Expression {
     private readonly result_value: number;
 
     constructor(
-            calc: (arg: Result) => Result,
-            buildTex: (arg: string) => string,
-            private readonly arg: Expression) {
-        this.tex_formula = buildTex(arg.getTex());
+        calc: (arg: Result) => Result,
+        buildTex: (arg: string, expr: Expression) => string,
+        private readonly arg: Expression) {
+        this.tex_formula = buildTex(buildOperandTexStr(arg, arg.useExplicitTexParentheses()), arg);
         this.result_value = calc(arg.getResult());
     }
 
@@ -121,7 +122,7 @@ export class FunctionExpression implements Expression {
         return this.tex_formula;
     }
 
-    useExplicitTexPareses(): boolean {
+    useExplicitTexParentheses(): boolean {
         return false;
     }
 

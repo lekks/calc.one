@@ -35,13 +35,13 @@ const operationsTable: { [opt: string]: OptParam } = {
     "sqrt": {
         operandsNumber: 1,
         build: function (x: Expression) {
-            return new FunctionExpression((x) => Math.sqrt(x), (x) => `\\sqrt{${x}}`, x)
+            return new FunctionExpression((x) => Math.sqrt(x), (a, x) => `\\sqrt{${x.getTex()}}`, x)
         },
     },
     "sqr": {
         operandsNumber: 1,
         build: function (x: Expression) {
-            return new FunctionExpression((x) => x * x, (x) => `\\left(${x}\\right)^{2}`, x)
+            return new FunctionExpression((x) => x * x, (x) => `${x}^{2}`, x)
         },
     }
 };
