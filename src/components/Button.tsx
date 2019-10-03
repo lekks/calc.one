@@ -22,7 +22,7 @@ class Button extends React.Component<Props, any> {
     public render() {
         return (
             <div onClick={this.onClick} className={"Button"}>
-                [{this.props.capture}]
+                {this.props.capture}
             </div>
         );
     }

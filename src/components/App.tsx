@@ -43,6 +43,10 @@ const App: React.FC = () => {
               <td><Button capture="Reset" keybind="Escape" action={Actions.CLEAR}/></td>
               <td><Button capture="Swap" keybind="PageDown" action={Actions.SWAP}/></td>
             </tr>
+            <tr>
+              <td><Button capture="√" tag="sqrt" action={Actions.OPERATION}/></td>
+              <td><Button capture="x²" tag="sqr" action={Actions.OPERATION}/></td>
+            </tr>
             </tbody>
           </table>
       </div>

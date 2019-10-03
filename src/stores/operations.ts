@@ -1,4 +1,4 @@
-import {ArithmeticExpression, Expression, OperationRank} from "./Expression";
+import {ArithmeticExpression, Expression, FunctionExpression, OperationRank} from "./Expression";
 
 
 interface OptParam {
@@ -30,6 +30,18 @@ const operationsTable: { [opt: string]: OptParam } = {
         operandsNumber: 2,
         build: function (a: Expression, b: Expression) {
             return new ArithmeticExpression((a, b, leftExpr, rightExpr) => `\\frac{${leftExpr.getTex()}}{${rightExpr.getTex()}}`, (a, b) => a / b, OperationRank.MULT__DIV, false, true, "/", a, b)
+        },
+    },
+    "sqrt": {
+        operandsNumber: 1,
+        build: function (x: Expression) {
+            return new FunctionExpression((x) => Math.sqrt(x), (x) => `\\sqrt{${x}}`, (x) => `sqrt(${x})`, x)
+        },
+    },
+    "sqr": {
+        operandsNumber: 1,
+        build: function (x: Expression) {
+            return new FunctionExpression((x) => x * x, (x) => `\\left(${x}\\right)^{2}`, (x) => `(${x}^2)`, x)
         },
     }
 };

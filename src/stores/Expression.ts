@@ -92,7 +92,7 @@ export class ArithmeticExpression implements Expression {
     }
 
     static buildOperandTexStr(expr: Expression, toEmbrace: boolean): string {
-        return toEmbrace ? `(${expr.getTex()})` : `${expr.getTex()}`;
+        return toEmbrace ? `\\left(${expr.getTex()}\\right)` : `${expr.getTex()}`;
     }
 
     private needRightParenthesis(): boolean {
@@ -122,3 +122,40 @@ export class ArithmeticExpression implements Expression {
     }
 }
 
+export class FunctionExpression implements Expression {
+
+    private readonly formula: string;
+    private readonly tex_formula: string;
+    private readonly result_value: number;
+
+    constructor(
+            calc: (arg: Result) => Result,
+            buildTex: (arg: string) => string,
+            buildFormula: (arg: string) => string,
+            private readonly arg: Expression) {
+        this.formula = buildFormula(arg.getTex());
+        this.tex_formula = buildTex(arg.getTex());
+        this.result_value = calc(arg.getResult());
+    }
+
+    getFormula(): string {
+        return this.formula;
+    }
+
+    getRank(): OperationRank {
+        return OperationRank.FUNC;
+    }
+
+    getTex(): string {
+        return this.tex_formula;
+    }
+
+    useExplicitTexPareses(): boolean {
+        return false;
+    }
+
+    getResult(): number {
+        return this.result_value;
+    }
+
+}
