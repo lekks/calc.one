@@ -10,12 +10,13 @@ function buildTestExpr4(a: number | string, op1: string, b: number | string, op3
     return ops.buildExpression(op3, left, right)
 }
 
-function buildFuncTestExpr3(a: number | string, op1: string, b: number | string, op2: string, c: number | string): Expression {
-    let [expA, expB, expC] = [a, b, c].map((n) => {
-        return new NumberExpression(n)
-    });
-    const left = ops.buildExpression(op1, expA, expB);
-    return ops.buildExpression(op2, left, expC)
+function buildFuncTestExpr1(func: string, a: number | string, op1: string, b: number | string): Expression {
+    const arg = ops.buildExpression(op1, new NumberExpression(a), new NumberExpression(b));
+    return ops.buildExpression(func, arg)
+}
+
+function buildFuncFuncTest(func2: string, func1: string, a: number | string): Expression {
+    return ops.buildExpression(func2, ops.buildExpression(func1, new NumberExpression(a)))
 }
 
 describe("Expressions composition test", () => {
@@ -43,19 +44,27 @@ describe("Expressions composition test", () => {
         expect(expr.getTex()).toBe(expected)
     });
 
-    //FIXME functions has 1 argument, not 2!!!!
     test.each([
-        [1, "+", 2, "sqrt", 3, "\\sqrt{1+2}"],
-        [1, "/", 2, "sqrt", 3, "\\sqrt{\\frac{1}{2}}"],
-        [1, "+", 2, "sqr", 3, "\\left(1+2\\right)^{2}"],
-        [1, "/", 2, "sqr", 3, "\\left(\\frac{1}{2}\\right)^{2}"],
-        [1, "sqr", 3, "-", 4, "1^{2}-4"],
+        ["sqrt", 1, "+", 2, "\\sqrt{1+2}"],
+        ["sqrt", 1, "/", 2, "\\sqrt{\\frac{1}{2}}"],
+        ["sqr", 1, "+", 2, "{\\left(1+2\\right)}^2"],
+        ["sqr", 1, "/", 2, "{\\left(\\frac{1}{2}\\right)}^2"],
+        ["sqr", 1, "*", 2, "{\\left(1\\times2\\right)}^2"],
 
-    ])('test function tex generation', (a, op1, b, op2, c, expected) => {
-        const expr = buildFuncTestExpr3(a, op1 as string, b, op2 as string, c);
+    ])('test function of operator tex generation', (func, a, op1, b, expected) => {
+        const expr = buildFuncTestExpr1(func as string, a, op1 as string, b);
         expect(expr.getTex()).toBe(expected)
     });
 
+    test.each([
+        ["sqr", "sqr", 1, "{{1}^2}^2"],
+        ["sqr", "sqrt", 3, "{\\sqrt{3}}^2"],
+        ["sqrt", "sqr", 5, "\\sqrt{{5}^2}"],
+
+    ])('test function of operator tex generation', (func2, func1, a, expected) => {
+        const expr = buildFuncFuncTest(func2 as string, func1 as string, a);
+        expect(expr.getTex()).toBe(expected)
+    });
 
     test.each([
         [1, "+", 2, "+", 3, "+", 4, 10],

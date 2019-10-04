@@ -9,13 +9,17 @@ body {
     margin: 0 auto;
     padding: 5px;
     border: 1px solid;
-
 }
 
 .Input {
-    padding: 10px;
+    min-height: 30px;
+    margin: 5px;
+    padding: 5px;
     font-size: 18px;
-    border-bottom: 1px solid;
+    border: 1px solid;
+
+    line-height: 30px;
+
 }
 
 .Expression {
@@ -29,6 +33,10 @@ body {
     flex-direction: column-reverse;
 }
 
+.Buttons {
+}
+
+
 .Button {
     border-radius: 8px;
     border: 1px solid;
@@ -36,6 +44,9 @@ body {
     cursor: pointer;
     font-size: 18px;
     font-weight: bold;
-    padding: 6px 24px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    width: 60px;
+    text-align: center;
     text-decoration: none;
 }

@@ -2,6 +2,7 @@
   "name": "rpcalc",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@types/fbemitter": "^2.0.32",
     "@types/flux": "^3.1.3",

@@ -3,7 +3,7 @@ import {buttonClick} from '../actions/ButtonActions';
 import Actions from "../dispatcher/Actions";
 
 interface Props {
-    capture: string;
+    caption: string;
     tag?: string;
     action: Actions;
     keybind?: string;
@@ -22,7 +22,7 @@ class Button extends React.Component<Props, any> {
     public render() {
         return (
             <div onClick={this.onClick} className={"Button"}>
-                {this.props.capture}
+                {this.props.caption}
             </div>
         );
     }

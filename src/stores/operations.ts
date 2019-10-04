@@ -41,7 +41,7 @@ const operationsTable: { [opt: string]: OptParam } = {
     "sqr": {
         operandsNumber: 1,
         build: function (x: Expression) {
-            return new FunctionExpression((x) => x * x, (x) => `${x}^{2}`, x)
+            return new FunctionExpression((x) => x * x, (x) => `{${x}}^2`, x)
         },
     }
 };
