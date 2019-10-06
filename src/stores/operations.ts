@@ -1,4 +1,4 @@
-import {ArithmeticExpression, Expression, FunctionExpression, OperationRank} from "./Expression";
+import {ArithmeticExpression, Expression, FunctionExpression, invertExpresson, OperationRank,} from "./Expression";
 
 
 interface OptParam {
@@ -43,6 +43,13 @@ const operationsTable: { [opt: string]: OptParam } = {
         build: function (x: Expression) {
             return new FunctionExpression((x) => x * x, (x) => `{${x}}^2`, x)
         },
+    },
+    "uminus": {
+        operandsNumber: 1,
+        build: function (x: Expression) {
+            return invertExpresson(x)
+        },
+
     }
 };
 

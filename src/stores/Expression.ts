@@ -2,7 +2,6 @@ export enum OperationRank {
     PLUS_MINUS,
     MULT__DIV,
     FUNC,
-    UNARY,
     NUMBER
 }
 
@@ -130,4 +129,45 @@ export class FunctionExpression implements Expression {
         return this.result_value;
     }
 
+}
+
+
+class UnaryMinusExpression implements Expression {
+
+    private readonly tex_formula: string;
+    private readonly result_value: number;
+
+    constructor(
+        private readonly arg: Expression) {
+        this.tex_formula = `{-${arg.getTex()}}`;
+        this.result_value = -arg.getResult();
+    }
+
+    getRank(): OperationRank {
+        return OperationRank.FUNC;
+    }
+
+    getTex(): string {
+        return this.tex_formula;
+    }
+
+    useExplicitTexParentheses(): boolean {
+        return true;
+    }
+
+    getResult(): number {
+        return this.result_value;
+    }
+
+    getArg(): Expression {
+        return this.arg;
+    }
+
+}
+
+export function invertExpresson(arg: Expression) {
+    if (arg instanceof UnaryMinusExpression)
+        return arg.getArg();
+    else
+        return new UnaryMinusExpression(arg);
 }

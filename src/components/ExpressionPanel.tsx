@@ -13,6 +13,7 @@ interface Props {
 const ExpressionPanel: React.FC<Props> = (expression) => {
     const result = Number(expression.expression.getResult().toFixed(ROUND));
     const resStr: string = isNaN(result) ? "?" : String(result);
+    //Choosing fonts (overrides ,katex): https://katex.org/docs/supported.html#style-color-size-and-font
     const texStr: string = `${expression.expression.getTex()}=${resStr}`;
     return (
         <div className="Expression">
