@@ -1,9 +1,9 @@
 import React from 'react';
-import './App.css';
 import CalcButton from './CalcButton';
 import ExpressionStack from "./ExpressionStack";
 import InputPanel from "./InputPanel";
 import Actions from "../dispatcher/Actions";
+import './App.css';
 
 const App: React.FC = () => {
 

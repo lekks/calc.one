@@ -3,6 +3,10 @@ body {
     padding-top: 10%;
 }
 
+.katex {
+    font-family: inherit;
+}
+
 .App {
     border-radius: 4px;
     height: fit-content;

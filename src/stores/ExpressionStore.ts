@@ -42,8 +42,9 @@ class ExpressionStore {
     private reactActions(action: Event) {
         switch (action.action) {
             case Actions.ADD_NUMBER:
-                this.editor.addSymbol(action.payload);
-                this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+                if (this.editor.addSymbol(action.payload)) {
+                    this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+                }
                 break;
             case Actions.OPERATION:
                 if (this.addOperation(action.payload)) {

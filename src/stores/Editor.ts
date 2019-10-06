@@ -1,12 +1,20 @@
 
 export class Editor {
     private expression: string = "";
+    private static readonly allowed: string = ".0123456789";
     getInput(): string {
         return this.expression;
     }
 
-    addSymbol(expr: string) {
+    addSymbol(expr: string): boolean {
+        if (expr.length !== 1)
+            return false;
+        if (Editor.allowed.indexOf(expr) === -1)
+            return false;
+        if (expr === '.' && this.expression.indexOf(expr) !== -1)
+            return false;
         this.expression += expr;
+        return true
     }
 
     clear() {
