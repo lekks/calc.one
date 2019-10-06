@@ -9,7 +9,7 @@ interface Props {
     keybind?: string;
 }
 
-class Button extends React.Component<Props, any> {
+class CalcButton extends React.Component<Props, any> {
     constructor(props: Props) {
         super(props,);
         document.addEventListener("keydown", this.onKeyDown)
@@ -39,4 +39,4 @@ class Button extends React.Component<Props, any> {
     }
 }
 
-export default Button;
+export default CalcButton;
