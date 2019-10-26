@@ -1,5 +1,5 @@
 import React from 'react';
-import {Expression} from "../stores/Expression";
+import {Expression} from "../expression/Expression";
 
 import 'katex/dist/katex.min.css';
 import {BlockMath} from 'react-katex';

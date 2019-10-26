@@ -2,9 +2,9 @@ import {EventEmitter} from 'fbemitter';
 
 import {AppDispatcher, Event} from "../dispatcher/AppDispatcher";
 import Actions from "../dispatcher/Actions";
-import {Expression, NumberExpression} from "./Expression";
+import {Expression, NumberExpression} from "../expression/Expression";
 import {Editor} from "./Editor";
-import ops from "./operations";
+import ops from "../expression/operations";
 
 export enum ExpressionEvents {
     INPUT_CHANGE_EVENT = "INPUT_CHANGE_EVENT",
@@ -17,6 +17,7 @@ class ExpressionStore {
     private emitter: EventEmitter;
     private dispatcher: typeof AppDispatcher;
     private dispatchToken: string;
+    private history: Expression[][] = [];
 
     constructor() {
         this.dispatcher = AppDispatcher;
@@ -59,9 +60,7 @@ class ExpressionStore {
                 this.clear();
                 break;
             case Actions.BS:
-                if (this.editor.backSpace()) {
-                    this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
-                }
+                this.backSpace();
                 break;
             case Actions.ENTER:
                 if (this.push()) {
@@ -75,12 +74,41 @@ class ExpressionStore {
         }
     }
 
+    private backSpace() {
+        if (this.editor.backSpace()) {
+            this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+        } else if (this.popHistory()) {
+            this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
+            this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
+        }
+
+    }
+
+    private popHistory(): boolean {
+        const last = this.history.pop();
+        console.log("Restore ", this.history.length);
+
+        if (last) {
+            this.stack = last;
+            return true;
+        } else {
+            return false
+        }
+    }
+
+    private stashHistory() {
+        this.history.push([...this.stack]);
+        console.log("Save ", this.history.length);
+    }
+
     private push(): boolean {
         if (this.editor.notEmpty()) {
+            this.stashHistory();
             this.stack.push(this.editorExpression());
             this.editor.clear();
             return true
         } else if (this.stack.length > 0) {
+            this.stashHistory();
             this.stack.push(this.stack[this.stack.length - 1]);
             return true
         } else {
@@ -90,6 +118,7 @@ class ExpressionStore {
 
     private swap() {
         if (this.stack.length >= 2) {
+            this.stashHistory();
             [this.stack[this.stack.length - 1], this.stack[this.stack.length - 2]] = [this.stack[this.stack.length - 2], this.stack[this.stack.length - 1]];
             this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
         }
@@ -97,6 +126,7 @@ class ExpressionStore {
 
     private clear() {
         this.editor.clear();
+        this.history = [];
         this.stack = [];
         this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
         this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
@@ -108,6 +138,7 @@ class ExpressionStore {
             this.editor.clear();
             this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT);
         } else if (this.stack.length > 0) {
+            this.stashHistory();
             this.stack.pop();
             this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT);
         }
@@ -126,6 +157,7 @@ class ExpressionStore {
         if (stackGet > this.stack.length) {
             return false
         }
+        this.stashHistory();
         const operandsExpr = this.stack.splice(-stackGet, stackGet);
         if (this.editor.notEmpty()) {
             operandsExpr.push(this.editorExpression());
