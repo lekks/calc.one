@@ -1,6 +1,6 @@
 
 body {
-    background-color: #75715e;
+    background-color: #6f6f6f;
     padding-top: 10%;
 }
 
@@ -9,10 +9,11 @@ body {
 }
 
 .App {
-    background-color: #332E2B;
+    background-color: #292929;
     height: fit-content;
     width: fit-content;
     margin: 0 auto;
+    box-shadow: 1px 1px 5px #000000A0;
 }
 
 .Stack {
@@ -30,14 +31,15 @@ body {
 }
 
 hr {
-    background-color: #2c2724;
+    background-color: #2B2B2B;
     width: 60%;
-    height: 1px;
+    height: 2px;
     border: 0;
 }
 
 .Input {
-    color: white;
+    background-color: #2B2B2B;
+    color: #E1E1E1;
     min-height: 30px;
     padding: 8px 8px 8px 18px;
     font-size: 28px;
@@ -53,15 +55,21 @@ hr {
 
 table.Buttons td {
     border: 1px solid;
-    background-color: #92887F;
+    background-color: #2D2D2D;
+}
+
+table.Buttons td.Num {
+    border: 1px solid;
+    background-color: #313131;
 }
 
 table.Buttons td:hover {
-    background-color: #a0968d;
+    background-color: #353535;
 }
 
+
 .Button {
-    color: white;
+    color: #cbcbcb;
     text-transform: uppercase;
     display: inline-block;
     cursor: pointer;
@@ -72,5 +80,6 @@ table.Buttons td:hover {
     width: 80px;
     text-align: center;
     text-decoration: none;
+    text-shadow: 0 0 4px #FFFFFF20;
 }
 
