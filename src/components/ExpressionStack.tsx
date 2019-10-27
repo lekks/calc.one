@@ -3,7 +3,7 @@ import FBEmitter from "fbemitter";
 
 import {ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
 import ExpressionPanel from "./ExpressionPanel";
-import {Expression} from "../stores/Expression";
+import {Expression} from "../expression/Expression";
 
 interface State {
     expressions: Expression[];
