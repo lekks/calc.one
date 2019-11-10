@@ -139,7 +139,7 @@ class UnaryMinusExpression implements Expression {
 
     constructor(
         private readonly arg: Expression) {
-        this.tex_formula = `{-${arg.getTex()}}`;
+        this.tex_formula = `{-${buildOperandTexStr(arg, arg.useExplicitTexParentheses())}}`;
         this.result_value = -arg.getResult();
     }
 

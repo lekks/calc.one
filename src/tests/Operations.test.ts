@@ -50,6 +50,10 @@ describe("Expressions composition test", () => {
         ["sqr", 1, "+", 2, "{\\left(1+2\\right)}^2"],
         ["sqr", 1, "/", 2, "{\\left(\\frac{1}{2}\\right)}^2"],
         ["sqr", 1, "*", 2, "{\\left(1\\times2\\right)}^2"],
+        ["uminus", 1, "*", 2, "{-\\left(1\\times2\\right)}"],
+        ["uminus", 1, "/", 2, "{-\\left(\\frac{1}{2}\\right)}"],
+        ["uminus", 1, "+", 2, "{-\\left(1+2\\right)}"],
+        ["uminus", 1, "-", 2, "{-\\left(1-2\\right)}"],
 
     ])('test function of operator tex generation', (func, a, op1, b, expected) => {
         const expr = buildFuncTestExpr1(func as string, a, op1 as string, b);
@@ -88,6 +92,5 @@ describe("Expressions composition test", () => {
         const expr = buildTestExpr4(a, op1 as string, b, op3 as string, c, op2 as string, d);
         expect(expr.getResult()).toBe(expected)
     })
-
 
 });
