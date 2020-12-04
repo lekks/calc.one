@@ -1,21 +1,23 @@
 import React from 'react';
-
-import {expressionStore} from "../stores/ExpressionStore";
 import ExpressionPanel from "./ExpressionPanel";
 import {StackItem} from "../calculator/Calculator";
-import {Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 
 interface State {
     expressions: StackItem[];
 }
 
+interface Props {
+    subject: Subject<StackItem[]>;
+}
+
 class ExpressionStack extends React.Component<any, State> {
     private subscription?: Subscription;
 
-    constructor(props: {}) {
+    constructor(props: Props) {
         super(props,);
         this.state = {expressions: []};
-        this.subscription = expressionStore.expressionStack.subscribe((expressions) => {
+        this.subscription = props.subject.subscribe((expressions) => {
             this.setState({expressions})
         })
     }

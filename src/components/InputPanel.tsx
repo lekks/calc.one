@@ -1,26 +1,29 @@
 import React from 'react';
 
-import {expressionStore} from "../stores/ExpressionStore";
-import {Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 
 interface State {
     text: string;
 }
 
-class InputPanel extends React.Component<any, State> {
-    subscription?: Subscription;
+interface Props {
+    subject: Subject<string>;
+}
 
-    constructor(props: {}) {
+class InputPanel extends React.Component<any, State> {
+    subscription: Subscription;
+
+    constructor(props: Props) {
         super(props,);
         this.state = {text: ""};
-        this.subscription = expressionStore.editorText.subscribe((text) => {
+        this.subscription = props.subject.subscribe((text) => {
             this.setState({text})
         })
 
     }
 
     public componentWillUnmount() {
-        this.subscription && this.subscription.unsubscribe();
+        this.subscription.unsubscribe();
     }
 
     render() {

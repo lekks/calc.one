@@ -4,13 +4,14 @@ import ExpressionStack from "./ExpressionStack";
 import InputPanel from "./InputPanel";
 import Actions from "../dispatcher/Actions";
 import './App.css';
+import {expressionStore} from "../stores/ExpressionStore";
 
 const App: React.FC = () => {
 
     return (
         <div className="App">
-            <ExpressionStack/>
-            <InputPanel/>
+            <ExpressionStack subject={expressionStore.expressionStack}/>
+            <InputPanel subject={expressionStore.editorText}/>
             <div className="Pad">
                 <table className="Buttons">
                     <tbody>

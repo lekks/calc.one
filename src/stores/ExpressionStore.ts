@@ -20,10 +20,6 @@ class ExpressionStore {
         this.calc.expressionStack.subscribe(this.expressionStack)
     }
 
-    public getStack(): StackItem[] {
-        return this.calc.getStack();
-    }
-
     private reactActions(action: Event) {
         switch (action.action) {
             case Actions.ADD_NUMBER:
