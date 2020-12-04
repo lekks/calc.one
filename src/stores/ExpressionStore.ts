@@ -1,18 +1,12 @@
-import {EventEmitter} from 'fbemitter';
-
 import {AppDispatcher, Event} from "../dispatcher/AppDispatcher";
 import Actions from "../dispatcher/Actions";
 import {Calculator, StackItem} from "../calculator/Calculator";
-
-export enum ExpressionEvents {
-    INPUT_CHANGE_EVENT = "INPUT_CHANGE_EVENT",
-    STACK_CHANGE_EVENT = "STACK_CHANGE_EVENT",
-}
+import {Subject} from "rxjs"
 
 class ExpressionStore {
-    private calc: Calculator;
-
-    private emitter: EventEmitter;
+    public readonly editorText = new Subject<string>();
+    public readonly expressionStack = new Subject<StackItem[]>();
+    private calc: Calculator = new Calculator();
     private dispatcher: typeof AppDispatcher;
     private dispatchToken: string;
 
@@ -22,28 +16,12 @@ class ExpressionStore {
             this.reactActions(payload);
         });
 
-        this.emitter = new EventEmitter();
-        this.calc = new Calculator(
-            () => {
-                this.emitter.emit(ExpressionEvents.INPUT_CHANGE_EVENT)
-            },
-            () => {
-                this.emitter.emit(ExpressionEvents.STACK_CHANGE_EVENT)
-            }
-        )
+        this.calc.editorText.subscribe(this.editorText)
+        this.calc.expressionStack.subscribe(this.expressionStack)
     }
-
-    public getInput(): string {
-        return this.calc.getInputText();
-    }
-
 
     public getStack(): StackItem[] {
         return this.calc.getStack();
-    }
-
-    public addChangeListener(event: ExpressionEvents, callback: () => void) {
-        return this.emitter.addListener(event, callback);
     }
 
     private reactActions(action: Event) {

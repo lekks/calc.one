@@ -1,29 +1,26 @@
 import React from 'react';
-import FBEmitter from "fbemitter";
 
-import {ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
+import {expressionStore} from "../stores/ExpressionStore";
+import {Subscription} from "rxjs";
 
 interface State {
     text: string;
 }
 
 class InputPanel extends React.Component<any, State> {
-    private eventSubscription: FBEmitter.EventSubscription;
+    subscription?: Subscription;
 
     constructor(props: {}) {
         super(props,);
-        this.state = InputPanel.getStateFromStores();
-        this.eventSubscription = expressionStore.addChangeListener(ExpressionEvents.INPUT_CHANGE_EVENT, this.onChange);
-    }
+        this.state = {text: ""};
+        this.subscription = expressionStore.editorText.subscribe((text) => {
+            this.setState({text})
+        })
 
-    private static getStateFromStores(): State {
-        return {
-            text: expressionStore.getInput()
-        };
     }
 
     public componentWillUnmount() {
-        this.eventSubscription.remove();
+        this.subscription && this.subscription.unsubscribe();
     }
 
     render() {
@@ -34,9 +31,6 @@ class InputPanel extends React.Component<any, State> {
         );
     }
 
-    private onChange = () => {
-        this.setState(InputPanel.getStateFromStores());
-    };
 }
 
 export default InputPanel;

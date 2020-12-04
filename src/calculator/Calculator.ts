@@ -1,6 +1,7 @@
 import {Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
+import {Subject} from "rxjs"
 
 export interface StackItem {
     readonly texFormula: string
@@ -8,21 +9,11 @@ export interface StackItem {
 }
 
 export class Calculator {
+    public readonly editorText = new Subject<string>();
+    public readonly expressionStack = new Subject<StackItem[]>();
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
-
-    constructor(
-        private onInputChange: () => void = () => {
-        },
-        private onStackChange: () => void = () => {
-        }) {
-    }
-
-    public getInputText(): string {
-        return this.editor.getInput();
-    }
-
 
     public getStack(): StackItem[] {
         return this.stack.map((expr) => ({
@@ -125,6 +116,14 @@ export class Calculator {
         if (this.editor.addSymbol(expr)) {
             this.onInputChange();
         }
+    }
+
+    private onInputChange() {
+        this.editorText.next(this.editor.getInput())
+    }
+
+    private onStackChange() {
+        this.expressionStack.next(this.getStack())
     }
 
 }
