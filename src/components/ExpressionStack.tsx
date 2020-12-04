@@ -3,10 +3,10 @@ import FBEmitter from "fbemitter";
 
 import {ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
 import ExpressionPanel from "./ExpressionPanel";
-import {Expression} from "../expression/Expression";
+import {StackItem} from "../calculator/Calculator";
 
 interface State {
-    expressions: Expression[];
+    expressions: StackItem[];
 }
 
 class ExpressionStack extends React.Component<any, State> {
@@ -30,7 +30,7 @@ class ExpressionStack extends React.Component<any, State> {
         const reversed = this.state.expressions.slice().reverse();
         return (
             <div className="Stack">
-                {reversed.map((expr: Expression, index) =>
+                {reversed.map((expr: StackItem, index) =>
                     <React.Fragment key={index}>
                         {index ? <hr/> : null}
                         <ExpressionPanel expression={expr}/>

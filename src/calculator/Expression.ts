@@ -6,9 +6,12 @@ export enum OperationRank {
 }
 
 export type Result = number;
+
 export interface Expression {
     getResult(): Result;
+
     getRank(): OperationRank;
+
     getTex(): string;
 
     useExplicitTexParentheses(): boolean;
@@ -73,14 +76,6 @@ export class ArithmeticExpression implements Expression {
         return this.result_value;
     }
 
-    private needLeftParenthesis(): boolean {
-        return this.rank > this.left.getRank()
-    }
-
-    private needRightParenthesis(): boolean {
-        return this.rank > this.right.getRank() || (!this.associative && this.rank === this.right.getRank())
-    }
-
     getRank(): OperationRank {
         return this.rank;
     }
@@ -91,6 +86,14 @@ export class ArithmeticExpression implements Expression {
 
     useExplicitTexParentheses(): boolean {
         return this.explicitTexParentheses;
+    }
+
+    private needLeftParenthesis(): boolean {
+        return this.rank > this.left.getRank()
+    }
+
+    private needRightParenthesis(): boolean {
+        return this.rank > this.right.getRank() || (!this.associative && this.rank === this.right.getRank())
     }
 
     private buildTex(builder: ArithmeticTexBuilder): string {
