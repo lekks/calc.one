@@ -1,7 +1,7 @@
-
 export class Editor {
-    private expression: string = "";
     private static readonly allowed: string = ".0123456789";
+    private expression: string = "";
+
     getInput(): string {
         return this.expression;
     }
@@ -29,7 +29,7 @@ export class Editor {
         return false;
     }
 
-    notEmpty():boolean {
+    notEmpty(): boolean {
         return this.expression.length !== 0;
     }
 
