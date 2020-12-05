@@ -8,21 +8,43 @@ export interface StackItem {
     readonly result: number
 }
 
+export enum CalcInputType {
+    ADD_NUMBER,
+    OPERATION,
+    ENTER,
+    SWAP,
+    BS,
+    DEL,
+    CLEAR
+}
+
+export interface CalcInputEvent {
+    type: CalcInputType;
+    payload?: string;
+}
+
+
 export class Calculator {
+
     public readonly editorText = new Subject<string>();
     public readonly expressionStack = new Subject<StackItem[]>();
+    public readonly calcInputEvent = new Subject<CalcInputEvent>();
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
 
-    public getStack(): StackItem[] {
+    constructor() {
+        this.calcInputEvent.subscribe((event) => this.processInputEvent(event))
+    }
+
+    private getStack(): StackItem[] {
         return this.stack.map((expr) => ({
             texFormula: expr.getTex(),
             result: expr.getResult()
         }));
     }
 
-    public backSpace() {
+    private backSpace() {
         if (this.editor.backSpace()) {
             this.onInputChange();
         } else if (this.popHistory()) {
@@ -31,7 +53,7 @@ export class Calculator {
         }
     }
 
-    public popHistory(): boolean {
+    private popHistory(): boolean {
         const last = this.history.pop();
 
         if (last) {
@@ -42,11 +64,11 @@ export class Calculator {
         }
     }
 
-    public stashHistory() {
+    private stashHistory() {
         this.history.push([...this.stack]);
     }
 
-    public push() {
+    private push() {
         if (this.editor.notEmpty()) {
             this.stashHistory();
             this.stack.push(this.editorExpression());
@@ -61,7 +83,7 @@ export class Calculator {
         }
     }
 
-    public swap() {
+    private swap() {
         if (this.stack.length >= 2) {
             this.stashHistory();
             [this.stack[this.stack.length - 1], this.stack[this.stack.length - 2]] = [this.stack[this.stack.length - 2], this.stack[this.stack.length - 1]];
@@ -69,7 +91,7 @@ export class Calculator {
         }
     }
 
-    public clear() {
+    private clear() {
         this.editor.clear();
         this.history = [];
         this.stack = [];
@@ -77,7 +99,7 @@ export class Calculator {
         this.onStackChange();
     }
 
-    public del() {
+    private del() {
         if (this.editor.notEmpty()) {
             this.editor.clear();
             this.onInputChange();
@@ -88,11 +110,11 @@ export class Calculator {
         }
     }
 
-    public editorExpression(): Expression {
+    private editorExpression(): Expression {
         return new NumberExpression(this.editor.getInput())
     }
 
-    public addOperation(oper: string) {
+    private addOperation(oper: string) {
         if (!ops.defined(oper)) {
             return
         }
@@ -112,7 +134,7 @@ export class Calculator {
         this.onStackChange();
     }
 
-    public addNumber(expr: string) {
+    private addNumber(expr: string) {
         if (this.editor.addSymbol(expr)) {
             this.onInputChange();
         }
@@ -124,6 +146,33 @@ export class Calculator {
 
     private onStackChange() {
         this.expressionStack.next(this.getStack())
+    }
+
+
+    private processInputEvent(event: CalcInputEvent) {
+        switch (event.type) {
+            case CalcInputType.ADD_NUMBER:
+                event.payload && this.addNumber(event.payload);
+                break;
+            case CalcInputType.OPERATION:
+                event.payload && this.addOperation(event.payload);
+                break;
+            case CalcInputType.DEL:
+                this.del();
+                break;
+            case CalcInputType.CLEAR:
+                this.clear();
+                break;
+            case CalcInputType.BS:
+                this.backSpace();
+                break;
+            case CalcInputType.ENTER:
+                this.push();
+                break;
+            case CalcInputType.SWAP:
+                this.swap();
+                break;
+        }
     }
 
 }

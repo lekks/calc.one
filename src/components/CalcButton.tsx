@@ -1,12 +1,14 @@
 import React from 'react';
-import {buttonClick} from '../actions/ButtonActions';
-import Actions from "../dispatcher/Actions";
+import {Subject} from "rxjs";
+import {CalcInputEvent, CalcInputType} from "../calculator/Calculator";
+
 
 interface Props {
     caption: string;
     tag?: string;
-    action: Actions;
+    action: CalcInputType;
     keybind?: string;
+    subject: Subject<CalcInputEvent>;
 }
 
 class CalcButton extends React.Component<Props, any> {
@@ -28,7 +30,7 @@ class CalcButton extends React.Component<Props, any> {
     }
 
     private onClick = () => {
-        buttonClick(this.props.action, this.props.tag)
+        this.props.subject.next({type: this.props.action, payload: this.props.tag})
     };
 
     private onKeyDown = (e: KeyboardEvent) => {
