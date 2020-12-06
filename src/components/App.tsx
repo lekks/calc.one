@@ -16,6 +16,14 @@ const App: React.FC = () => {
             <div className="Pad">
                 <table className="Buttons">
                     <tbody>
+                    {/*<tr>*/}
+                    {/*    <td/><td/><td/><td/>*/}
+                    {/*    <td>*/}
+                    {/*        <div className={"Button"} onClick={(event: any) => { console.log("PASTE") }}>*/}
+                    {/*            Paste*/}
+                    {/*        </div>*/}
+                    {/*    </td>*/}
+                    {/*</tr>*/}
                     <tr>
                         <td className="Num"><CalcButton caption="7" tag="7" keybind="7"
                                                         action={CalcInputType.ADD_NUMBER}
@@ -102,5 +110,22 @@ const App: React.FC = () => {
         </div>
     );
 };
+
+export function registerClipboardSupport() {
+    window.document.addEventListener('paste', (e) => {
+        console.log('paste action initiated')
+        if (e.clipboardData) {
+            console.log(e.clipboardData.getData('text/plain'))
+        }
+        e.preventDefault();
+    });
+
+    window.document.addEventListener('copy', (e) => {
+        console.log('copy action initiated')
+        e.clipboardData && e.clipboardData.setData('text/plain', 'Hello, world2!');
+        e.preventDefault();
+    });
+}
+
 
 export default App;

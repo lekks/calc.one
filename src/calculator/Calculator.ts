@@ -45,7 +45,8 @@ export class Calculator {
     }
 
     private backSpace() {
-        if (this.editor.backSpace()) {
+        if (this.editor.notEmpty()) {
+            this.editor.addSymbol(Editor.BS_SYMBOL)
             this.onInputChange();
         } else if (this.popHistory()) {
             this.onInputChange();
@@ -72,7 +73,7 @@ export class Calculator {
         if (this.editor.notEmpty()) {
             this.stashHistory();
             this.stack.push(this.editorExpression());
-            this.editor.clear();
+            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
             this.onInputChange();
             this.onStackChange();
         } else if (this.stack.length > 0) {
@@ -92,7 +93,7 @@ export class Calculator {
     }
 
     private clear() {
-        this.editor.clear();
+        this.editor.addSymbol(Editor.CLEAR_SYMBOL);
         this.history = [];
         this.stack = [];
         this.onInputChange();
@@ -101,7 +102,7 @@ export class Calculator {
 
     private del() {
         if (this.editor.notEmpty()) {
-            this.editor.clear();
+            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
             this.onInputChange();
         } else if (this.stack.length > 0) {
             this.stashHistory();
@@ -127,7 +128,7 @@ export class Calculator {
         const operandsExpr = this.stack.splice(-stackGet, stackGet);
         if (this.editor.notEmpty()) {
             operandsExpr.push(this.editorExpression());
-            this.editor.clear();
+            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
         }
         this.stack.push(ops.buildExpression(oper, ...operandsExpr));
         this.onInputChange();
@@ -135,9 +136,8 @@ export class Calculator {
     }
 
     private addNumber(expr: string) {
-        if (this.editor.addSymbol(expr)) {
-            this.onInputChange();
-        }
+        this.editor.addSymbol(expr);
+        this.onInputChange();
     }
 
     private onInputChange() {
