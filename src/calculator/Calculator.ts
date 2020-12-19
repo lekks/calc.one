@@ -1,8 +1,8 @@
 import {Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
-import {BehaviorSubject, Subject} from "rxjs"
-import {map} from "rxjs/operators";
+import {BehaviorSubject, combineLatest, Subject} from "rxjs"
+import {distinctUntilChanged, map} from "rxjs/operators";
 
 export interface StackItem {
     readonly texFormula: string
@@ -30,7 +30,9 @@ export class Calculator {
     public readonly editorText = new Subject<string>();
     public readonly expressionStack = new Subject<StackItem[]>();
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
-    public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
+    public readonly calcEditorStringInput = new Subject<string>();
+    public readonly result = new BehaviorSubject<number>(NaN);
+    stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
@@ -38,11 +40,20 @@ export class Calculator {
     constructor() {
         this.calcInputEvent.subscribe(this.processInputEvent.bind(this))
         this.editor.expression.subscribe(this.editorText)
+        this.calcEditorStringInput.subscribe(this.editor.stringInput)
         this.expressionStack.pipe(
             map((stack: StackItem[]) =>
                 stack[this.stack.length - 1] ? stack[this.stack.length - 1] : undefined
             )
         ).subscribe(this.stackResult);
+
+        combineLatest([this.editor.value, this.stackResult]).pipe(
+            map(([editor, stack]) => {
+                return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
+            }),
+            distinctUntilChanged()
+        ).subscribe(this.result)
+
     }
 
     private getStack(): StackItem[] {
@@ -79,8 +90,8 @@ export class Calculator {
         if (this.editor.notEmpty()) {
             this.stashHistory();
             this.stack.push(this.editorExpression());
-            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
             this.expressionStack.next(this.getStack())
+            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
         } else if (this.stack.length > 0) {
             this.stashHistory();
             this.stack.push(this.stack[this.stack.length - 1]);

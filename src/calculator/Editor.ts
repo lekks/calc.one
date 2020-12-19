@@ -1,5 +1,5 @@
 import {BehaviorSubject, Subject} from "rxjs";
-import {filter, mergeAll, scan} from "rxjs/operators";
+import {filter, map, mergeAll, scan} from "rxjs/operators";
 
 export class Editor {
     public static readonly CLEAR_SYMBOL = "DEL"
@@ -11,6 +11,7 @@ export class Editor {
     public readonly symbolInput = new Subject<string>();
     public readonly stringInput = new Subject<string>();
     public readonly expression = new BehaviorSubject<string>("");
+    public readonly value = new Subject<number>();
 
     constructor() {
         this.stringInput.pipe(mergeAll()).subscribe(this.symbolInput)
@@ -18,6 +19,7 @@ export class Editor {
             filter(value => Editor.allowedSymbols.includes(value)),
             scan(Editor.symbolReducer, "")
         ).subscribe(this.expression);
+        this.expression.pipe(map(str => str.length ? Number(str) : NaN)).subscribe(this.value)
     }
 
     private static symbolReducer(acc: string, expr: string) {

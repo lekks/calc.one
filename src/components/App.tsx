@@ -5,6 +5,9 @@ import InputPanel from "./InputPanel";
 import './App.css';
 import {CalcInputType, Calculator} from "../calculator/Calculator";
 
+const CLIPBOARD_ROUND = 8;
+
+
 const calculator = new Calculator();
 
 const App: React.FC = () => {
@@ -113,16 +116,18 @@ const App: React.FC = () => {
 
 export function registerClipboardSupport() {
     window.document.addEventListener('paste', (e) => {
-        console.log('paste action initiated')
         if (e.clipboardData) {
-            console.log(e.clipboardData.getData('text/plain'))
+            const string = e.clipboardData.getData('text/plain');
+            calculator.calcEditorStringInput.next(string);
         }
         e.preventDefault();
     });
 
     window.document.addEventListener('copy', (e) => {
-        console.log('copy action initiated')
-        e.clipboardData && e.clipboardData.setData('text/plain', 'Hello, world2!');
+        const result = calculator.result.getValue();
+        if (!isNaN(result)) {
+            e.clipboardData && e.clipboardData.setData('text/plain', result.toFixed(CLIPBOARD_ROUND));
+        }
         e.preventDefault();
     });
 }
