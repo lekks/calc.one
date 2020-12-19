@@ -94,7 +94,7 @@ const App: React.FC = () => {
                                         subject={calculator.calcInputEvent}/></td>
                     </tr>
                     <tr>
-                        <td><CalcButton caption="√" tag="sqrt" action={CalcInputType.OPERATION}
+                        <td><CalcButton caption="√" tag="sqrt" keybind="\" action={CalcInputType.OPERATION}
                                         subject={calculator.calcInputEvent}/></td>
                         <td><CalcButton caption="x²" tag="sqr" action={CalcInputType.OPERATION}
                                         subject={calculator.calcInputEvent}/></td>

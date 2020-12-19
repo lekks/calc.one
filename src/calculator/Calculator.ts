@@ -1,7 +1,8 @@
 import {Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
-import {Subject} from "rxjs"
+import {BehaviorSubject, Subject} from "rxjs"
+import {map} from "rxjs/operators";
 
 export interface StackItem {
     readonly texFormula: string
@@ -29,12 +30,19 @@ export class Calculator {
     public readonly editorText = new Subject<string>();
     public readonly expressionStack = new Subject<StackItem[]>();
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
+    public readonly stackResult = new BehaviorSubject<number | undefined>(NaN);
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
 
     constructor() {
-        this.calcInputEvent.subscribe((event) => this.processInputEvent(event))
+        this.calcInputEvent.subscribe(this.processInputEvent.bind(this))
+        this.editor.expression.subscribe(this.editorText)
+        this.expressionStack.pipe(
+            map((stack: StackItem[]) =>
+                stack[this.stack.length - 1] ? stack[this.stack.length - 1].result : NaN
+            )
+        ).subscribe(this.stackResult);
     }
 
     private getStack(): StackItem[] {
@@ -47,10 +55,8 @@ export class Calculator {
     private backSpace() {
         if (this.editor.notEmpty()) {
             this.editor.addSymbol(Editor.BS_SYMBOL)
-            this.onInputChange();
         } else if (this.popHistory()) {
-            this.onInputChange();
-            this.onStackChange();
+            this.expressionStack.next(this.getStack())
         }
     }
 
@@ -74,13 +80,11 @@ export class Calculator {
             this.stashHistory();
             this.stack.push(this.editorExpression());
             this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-            this.onInputChange();
-            this.onStackChange();
+            this.expressionStack.next(this.getStack())
         } else if (this.stack.length > 0) {
             this.stashHistory();
             this.stack.push(this.stack[this.stack.length - 1]);
-            this.onInputChange();
-            this.onStackChange();
+            this.expressionStack.next(this.getStack())
         }
     }
 
@@ -88,7 +92,7 @@ export class Calculator {
         if (this.stack.length >= 2) {
             this.stashHistory();
             [this.stack[this.stack.length - 1], this.stack[this.stack.length - 2]] = [this.stack[this.stack.length - 2], this.stack[this.stack.length - 1]];
-            this.onStackChange();
+            this.expressionStack.next(this.getStack())
         }
     }
 
@@ -96,18 +100,16 @@ export class Calculator {
         this.editor.addSymbol(Editor.CLEAR_SYMBOL);
         this.history = [];
         this.stack = [];
-        this.onInputChange();
-        this.onStackChange();
+        this.expressionStack.next(this.getStack())
     }
 
     private del() {
         if (this.editor.notEmpty()) {
             this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-            this.onInputChange();
         } else if (this.stack.length > 0) {
             this.stashHistory();
             this.stack.pop();
-            this.onStackChange();
+            this.expressionStack.next(this.getStack())
         }
     }
 
@@ -131,23 +133,12 @@ export class Calculator {
             this.editor.addSymbol(Editor.CLEAR_SYMBOL);
         }
         this.stack.push(ops.buildExpression(oper, ...operandsExpr));
-        this.onInputChange();
-        this.onStackChange();
+        this.expressionStack.next(this.getStack())
     }
 
     private addNumber(expr: string) {
         this.editor.addSymbol(expr);
-        this.onInputChange();
     }
-
-    private onInputChange() {
-        this.editorText.next(this.editor.getInput())
-    }
-
-    private onStackChange() {
-        this.expressionStack.next(this.getStack())
-    }
-
 
     private processInputEvent(event: CalcInputEvent) {
         switch (event.type) {
