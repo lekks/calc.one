@@ -30,7 +30,7 @@ export class Calculator {
     public readonly editorText = new Subject<string>();
     public readonly expressionStack = new Subject<StackItem[]>();
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
-    public readonly stackResult = new BehaviorSubject<number | undefined>(NaN);
+    public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
@@ -40,7 +40,7 @@ export class Calculator {
         this.editor.expression.subscribe(this.editorText)
         this.expressionStack.pipe(
             map((stack: StackItem[]) =>
-                stack[this.stack.length - 1] ? stack[this.stack.length - 1].result : NaN
+                stack[this.stack.length - 1] ? stack[this.stack.length - 1] : undefined
             )
         ).subscribe(this.stackResult);
     }

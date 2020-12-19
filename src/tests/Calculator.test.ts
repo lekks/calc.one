@@ -15,7 +15,7 @@ describe('Test Calculator', () => {
         );
         arraySource.subscribe(calculator.calcInputEvent)
 
-        expect(calculator.stackResult.getValue()).toBe(6)
+        expect(calculator.stackResult.getValue()?.result).toBe(6)
     });
 
     test('undo value', () => {
@@ -33,7 +33,7 @@ describe('Test Calculator', () => {
         );
         arraySource.subscribe(calculator.calcInputEvent)
 
-        expect(calculator.stackResult.getValue()).toBe(8)
+        expect(calculator.stackResult.getValue()?.result).toBe(8)
     });
 
     test('swap', () => {
@@ -50,7 +50,7 @@ describe('Test Calculator', () => {
         );
         arraySource.subscribe(calculator.calcInputEvent)
 
-        expect(calculator.stackResult.getValue()).toBe(12)
+        expect(calculator.stackResult.getValue()?.result).toBe(12)
     });
 
 })
