@@ -16,7 +16,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(6)
-        expect(calculator.result.getValue()).toBe(6)
+        expect(calculator.clipboardOutput.getValue()).toBe(6)
     });
 
     test('op with editor', () => {
@@ -31,7 +31,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(6)
-        expect(calculator.result.getValue()).toBe(6)
+        expect(calculator.clipboardOutput.getValue()).toBe(6)
     });
 
     test('factorial 5', () => {
@@ -55,7 +55,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(120)
-        expect(calculator.result.getValue()).toBe(120)
+        expect(calculator.clipboardOutput.getValue()).toBe(120)
     });
 
     test('duplicate', () => {
@@ -72,7 +72,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(12)
-        expect(calculator.result.getValue()).toBe(12)
+        expect(calculator.clipboardOutput.getValue()).toBe(12)
     });
 
     test('undo value', () => {
@@ -91,7 +91,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(8)
-        expect(calculator.result.getValue()).toBe(8)
+        expect(calculator.clipboardOutput.getValue()).toBe(8)
     });
 
     test('swap', () => {
@@ -109,7 +109,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(12)
-        expect(calculator.result.getValue()).toBe(12)
+        expect(calculator.clipboardOutput.getValue()).toBe(12)
     });
 
     test('undo', () => {
@@ -128,7 +128,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(3)
-        expect(calculator.result.getValue()).toBe(3)
+        expect(calculator.clipboardOutput.getValue()).toBe(3)
     });
 
     test('del', () => {
@@ -148,7 +148,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(2)
-        expect(calculator.result.getValue()).toBe(2)
+        expect(calculator.clipboardOutput.getValue()).toBe(2)
     });
 
     test('clear', () => {
@@ -167,7 +167,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBeUndefined()
-        expect(calculator.result.getValue()).toBeNaN()
+        expect(calculator.clipboardOutput.getValue()).toBeNaN()
     });
 
     test('result is editor', () => {
@@ -185,7 +185,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(6)
-        expect(calculator.result.getValue()).toBe(17)
+        expect(calculator.clipboardOutput.getValue()).toBe(17)
     });
 
 

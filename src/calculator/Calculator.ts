@@ -31,7 +31,7 @@ export class Calculator {
     public readonly expressionStack = new Subject<StackItem[]>();
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
     public readonly calcEditorStringInput = new Subject<string>();
-    public readonly result = new BehaviorSubject<number>(NaN);
+    public readonly clipboardOutput = new BehaviorSubject<number>(NaN);
     public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
@@ -52,7 +52,7 @@ export class Calculator {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
             distinctUntilChanged()
-        ).subscribe(this.result)
+        ).subscribe(this.clipboardOutput)
 
     }
 

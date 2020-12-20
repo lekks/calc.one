@@ -129,7 +129,7 @@ export function registerClipboardSupport() {
     });
 
     window.document.addEventListener('copy', (e) => {
-        const result = calculator.result.getValue();
+        const result = calculator.clipboardOutput.getValue();
         if (!isNaN(result)) {
             e.clipboardData && e.clipboardData.setData('text/plain', toSeasonableString(result));
         }
