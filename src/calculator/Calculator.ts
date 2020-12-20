@@ -32,7 +32,7 @@ export class Calculator {
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
     public readonly calcEditorStringInput = new Subject<string>();
     public readonly result = new BehaviorSubject<number>(NaN);
-    stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
+    public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
     private editor: Editor = new Editor();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
