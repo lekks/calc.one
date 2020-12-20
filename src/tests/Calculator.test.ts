@@ -16,6 +16,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(6)
+        expect(calculator.result.getValue()).toBe(6)
     });
 
     test('op with editor', () => {
@@ -30,6 +31,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(6)
+        expect(calculator.result.getValue()).toBe(6)
     });
 
 
@@ -49,6 +51,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(8)
+        expect(calculator.result.getValue()).toBe(8)
     });
 
     test('swap', () => {
@@ -66,6 +69,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(12)
+        expect(calculator.result.getValue()).toBe(12)
     });
 
     test('undo', () => {
@@ -84,6 +88,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(3)
+        expect(calculator.result.getValue()).toBe(3)
     });
 
     test('del', () => {
@@ -103,6 +108,7 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBe(2)
+        expect(calculator.result.getValue()).toBe(2)
     });
 
     test('clear', () => {
@@ -121,6 +127,25 @@ describe('Test Calculator', () => {
         arraySource.subscribe(calculator.calcInputEvent)
 
         expect(calculator.stackResult.getValue()?.result).toBeUndefined()
+        expect(calculator.result.getValue()).toBeNaN()
+    });
+
+    test('result is editor', () => {
+        const calculator = new Calculator()
+        const arraySource = from([
+                {type: CalcInputType.ADD_NUMBER, payload: '2'},
+                {type: CalcInputType.ENTER},
+                {type: CalcInputType.ADD_NUMBER, payload: '3'},
+                {type: CalcInputType.ENTER},
+                {type: CalcInputType.OPERATION, payload: '*'},
+                {type: CalcInputType.ADD_NUMBER, payload: '1'},
+                {type: CalcInputType.ADD_NUMBER, payload: '7'},
+            ]
+        );
+        arraySource.subscribe(calculator.calcInputEvent)
+
+        expect(calculator.stackResult.getValue()?.result).toBe(6)
+        expect(calculator.result.getValue()).toBe(17)
     });
 
 
