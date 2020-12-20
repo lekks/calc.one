@@ -114,7 +114,12 @@ const App: React.FC = () => {
     );
 };
 
+
 export function registerClipboardSupport() {
+    function toSeasonableString(x: number): string {
+        return String(Number(x.toFixed(CLIPBOARD_ROUND)))
+    }
+
     window.document.addEventListener('paste', (e) => {
         if (e.clipboardData) {
             const string = e.clipboardData.getData('text/plain');
@@ -126,7 +131,7 @@ export function registerClipboardSupport() {
     window.document.addEventListener('copy', (e) => {
         const result = calculator.result.getValue();
         if (!isNaN(result)) {
-            e.clipboardData && e.clipboardData.setData('text/plain', result.toFixed(CLIPBOARD_ROUND));
+            e.clipboardData && e.clipboardData.setData('text/plain', toSeasonableString(result));
         }
         e.preventDefault();
     });
