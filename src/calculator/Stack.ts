@@ -1,22 +1,11 @@
-import {BehaviorSubject, Subject} from "rxjs";
+import {Subject} from "rxjs";
 import {Expression} from "./Expression";
-import {map} from "rxjs/operators";
-import {StackItem} from "./Calculator";
 
 export class Stack {
 
-    public readonly expressionStack = new Subject<StackItem[]>();
-    public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
+    public readonly expressionStack = new Subject<Expression[]>();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
-
-    constructor() {
-        this.expressionStack.pipe(
-            map((stack: StackItem[]) =>
-                stack[this.stack.length - 1] ? stack[this.stack.length - 1] : undefined
-            )
-        ).subscribe(this.stackResult);
-    }
 
     public backSpace() {
         if (this.popHistory()) {
@@ -85,15 +74,8 @@ export class Stack {
         }
     }
 
-    private getStack(): StackItem[] {
-        return this.stack.map((expr) => ({
-            texFormula: expr.getTex(),
-            result: expr.getResult()
-        }));
-    }
-
     private publishStack() {
-        this.expressionStack.next(this.getStack())
+        this.expressionStack.next(this.stack)
     }
 
     private stashHistory() {

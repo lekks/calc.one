@@ -41,46 +41,30 @@ export class Calculator {
         this.calcInputEvent.subscribe(this.processInputEvent.bind(this))
         this.editor.expression.subscribe(this.editorText)
         this.calcEditorStringInput.subscribe(this.editor.stringInput)
-        this.stack.stackResult.subscribe(this.stackResult)
-        this.stack.expressionStack.subscribe(this.expressionStack)
 
-        combineLatest([this.editor.value, this.stack.stackResult]).pipe(
+        this.stack.expressionStack.pipe(
+            map((exprStack: Expression[]): StackItem[] => exprStack.map((expr: Expression): StackItem => {
+                return {
+                    texFormula: expr.getTex(),
+                    result: expr.getResult()
+                }
+            }))
+        ).subscribe(this.expressionStack)
+
+        this.expressionStack.pipe(
+            map((stack: StackItem[]) =>
+                stack[stack.length - 1] ? stack[stack.length - 1] : undefined
+            )
+        ).subscribe(this.stackResult);
+
+        combineLatest([this.editor.value, this.stackResult]).pipe(
             map(([editor, stack]) => {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
             distinctUntilChanged()
         ).subscribe(this.clipboardOutput)
 
-    }
 
-    private backSpace() {
-        if (this.editor.notEmpty()) {
-            this.editor.addSymbol(Editor.BS_SYMBOL)
-        } else {
-            this.stack.backSpace()
-        }
-    }
-
-    private push() {
-        if (this.editor.notEmpty()) {
-            this.stack.push(this.editorExpression());
-            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-        } else {
-            this.stack.duplicate()
-        }
-    }
-
-    private clear() {
-        this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-        this.stack.clear()
-    }
-
-    private del() {
-        if (this.editor.notEmpty()) {
-            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-        } else {
-            this.stack.del()
-        }
     }
 
     private editorExpression(): Expression {
@@ -109,34 +93,43 @@ export class Calculator {
         this.stack.addOperation(ops.buildExpression(oper, ...operandsExpr));
     }
 
-    private addNumber(expr: string) {
-        this.editor.addSymbol(expr);
-    }
-
     private processInputEvent(event: CalcInputEvent) {
         switch (event.type) {
             case CalcInputType.ADD_NUMBER:
-                event.payload && this.addNumber(event.payload);
+                event.payload && this.editor.addSymbol(event.payload);
                 break;
             case CalcInputType.OPERATION:
                 event.payload && this.addOperation(event.payload);
                 break;
             case CalcInputType.DEL:
-                this.del();
+                if (this.editor.notEmpty()) {
+                    this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                } else {
+                    this.stack.del()
+                }
                 break;
             case CalcInputType.CLEAR:
-                this.clear();
+                this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                this.stack.clear()
                 break;
             case CalcInputType.BS:
-                this.backSpace();
+                if (this.editor.notEmpty()) {
+                    this.editor.addSymbol(Editor.BS_SYMBOL)
+                } else {
+                    this.stack.backSpace()
+                }
                 break;
             case CalcInputType.ENTER:
-                this.push();
+                if (this.editor.notEmpty()) {
+                    this.stack.push(this.editorExpression());
+                    this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                } else {
+                    this.stack.duplicate()
+                }
                 break;
             case CalcInputType.SWAP:
                 this.stack.swap();
                 break;
         }
     }
-
 }
