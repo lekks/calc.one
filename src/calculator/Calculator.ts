@@ -3,11 +3,8 @@ import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
 import {BehaviorSubject, combineLatest, Subject} from "rxjs"
 import {distinctUntilChanged, map} from "rxjs/operators";
+import {Stack} from "./Stack";
 
-export interface StackItem {
-    readonly texFormula: string
-    readonly result: number
-}
 
 export enum CalcInputType {
     ADD_NUMBER,
@@ -24,30 +21,30 @@ export interface CalcInputEvent {
     payload?: string;
 }
 
+export interface StackItem {
+    readonly texFormula: string
+    readonly result: number
+}
 
 export class Calculator {
 
     public readonly editorText = new Subject<string>();
-    public readonly expressionStack = new Subject<StackItem[]>();
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
     public readonly calcEditorStringInput = new Subject<string>();
     public readonly clipboardOutput = new BehaviorSubject<number>(NaN);
     public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
+    public readonly expressionStack = new Subject<StackItem[]>();
     private editor: Editor = new Editor();
-    private stack: Expression[] = [];
-    private history: Expression[][] = [];
+    private stack = new Stack();
 
     constructor() {
         this.calcInputEvent.subscribe(this.processInputEvent.bind(this))
         this.editor.expression.subscribe(this.editorText)
         this.calcEditorStringInput.subscribe(this.editor.stringInput)
-        this.expressionStack.pipe(
-            map((stack: StackItem[]) =>
-                stack[this.stack.length - 1] ? stack[this.stack.length - 1] : undefined
-            )
-        ).subscribe(this.stackResult);
+        this.stack.stackResult.subscribe(this.stackResult)
+        this.stack.expressionStack.subscribe(this.expressionStack)
 
-        combineLatest([this.editor.value, this.stackResult]).pipe(
+        combineLatest([this.editor.value, this.stack.stackResult]).pipe(
             map(([editor, stack]) => {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
@@ -56,71 +53,33 @@ export class Calculator {
 
     }
 
-    private getStack(): StackItem[] {
-        return this.stack.map((expr) => ({
-            texFormula: expr.getTex(),
-            result: expr.getResult()
-        }));
-    }
-
     private backSpace() {
         if (this.editor.notEmpty()) {
             this.editor.addSymbol(Editor.BS_SYMBOL)
-        } else if (this.popHistory()) {
-            this.expressionStack.next(this.getStack())
-        }
-    }
-
-    private popHistory(): boolean {
-        const last = this.history.pop();
-
-        if (last) {
-            this.stack = last;
-            return true;
         } else {
-            return false
+            this.stack.backSpace()
         }
-    }
-
-    private stashHistory() {
-        this.history.push([...this.stack]);
     }
 
     private push() {
         if (this.editor.notEmpty()) {
-            this.stashHistory();
             this.stack.push(this.editorExpression());
-            this.expressionStack.next(this.getStack())
             this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-        } else if (this.stack.length > 0) {
-            this.stashHistory();
-            this.stack.push(this.stack[this.stack.length - 1]);
-            this.expressionStack.next(this.getStack())
-        }
-    }
-
-    private swap() {
-        if (this.stack.length >= 2) {
-            this.stashHistory();
-            [this.stack[this.stack.length - 1], this.stack[this.stack.length - 2]] = [this.stack[this.stack.length - 2], this.stack[this.stack.length - 1]];
-            this.expressionStack.next(this.getStack())
+        } else {
+            this.stack.duplicate()
         }
     }
 
     private clear() {
         this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-        this.history = [];
-        this.stack = [];
-        this.expressionStack.next(this.getStack())
+        this.stack.clear()
     }
 
     private del() {
         if (this.editor.notEmpty()) {
             this.editor.addSymbol(Editor.CLEAR_SYMBOL);
-        } else if (this.stack.length > 0) {
-            this.stashHistory();
-            this.stack.pop();
-            this.expressionStack.next(this.getStack())
+        } else {
+            this.stack.del()
         }
     }
 
@@ -129,22 +88,25 @@ export class Calculator {
     }
 
     private addOperation(oper: string) {
+        // operation is unknown
         if (!ops.defined(oper)) {
             return
         }
+
+        // we must have in stack as much items as we need for operation
         const opnNum: number = ops.operandsNumber(oper);
         const stackGet = opnNum - (this.editor.notEmpty() ? 1 : 0);
-        if (stackGet > this.stack.length) {
+        if (stackGet > this.stack.getLength()) {
             return
         }
-        this.stashHistory();
-        const operandsExpr = this.stack.splice(-stackGet, stackGet);
+
+        const operandsExpr = this.stack.getTop(stackGet)
+
         if (this.editor.notEmpty()) {
             operandsExpr.push(this.editorExpression());
             this.editor.addSymbol(Editor.CLEAR_SYMBOL);
         }
-        this.stack.push(ops.buildExpression(oper, ...operandsExpr));
-        this.expressionStack.next(this.getStack())
+        this.stack.addOperation(ops.buildExpression(oper, ...operandsExpr));
     }
 
     private addNumber(expr: string) {
@@ -172,7 +134,7 @@ export class Calculator {
                 this.push();
                 break;
             case CalcInputType.SWAP:
-                this.swap();
+                this.stack.swap();
                 break;
         }
     }
