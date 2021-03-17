@@ -84,7 +84,7 @@ export class Calculator {
             return
         }
 
-        const operandsExpr = this.stack.getTop(stackGet)
+        const operandsExpr: Expression[] = this.stack.getTop(stackGet)
 
         if (this.editor.notEmpty()) {
             operandsExpr.push(this.editorExpression());
@@ -128,6 +128,10 @@ export class Calculator {
                 }
                 break;
             case CalcInputType.SWAP:
+                if (this.editor.notEmpty()) {
+                    this.stack.push(this.editorExpression());
+                    this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                }
                 this.stack.swap();
                 break;
         }
