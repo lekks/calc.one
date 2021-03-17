@@ -14,8 +14,8 @@ const App: React.FC = () => {
 
     return (
         <div className="App">
-            <ExpressionStack subject={calculator.expressionStack}/>
-            <InputPanel subject={calculator.editorText}/>
+            <ExpressionStack subject={calculator.getExpressionStackObservable()}/>
+            <InputPanel subject={calculator.getEditorTextObservable()}/>
             <div className="Pad">
                 <table className="Buttons">
                     <tbody>

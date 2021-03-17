@@ -1,11 +1,14 @@
-import {Subject} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {Expression} from "./Expression";
 
 export class Stack {
-
-    public readonly expressionStack = new Subject<Expression[]>();
+    private readonly expressionStack = new Subject<Expression[]>();
     private stack: Expression[] = [];
     private history: Expression[][] = [];
+
+    public getExpressionsObservable(): Observable<Expression[]> {
+        return this.expressionStack.asObservable();
+    }
 
     public backSpace() {
         if (this.popHistory()) {

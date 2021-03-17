@@ -1,7 +1,7 @@
 import {Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
-import {BehaviorSubject, combineLatest, Subject} from "rxjs"
+import {BehaviorSubject, combineLatest, Observable, Subject} from "rxjs"
 import {distinctUntilChanged, map} from "rxjs/operators";
 import {Stack} from "./Stack";
 
@@ -28,21 +28,21 @@ export interface StackItem {
 
 export class Calculator {
 
-    public readonly editorText = new Subject<string>();
     public readonly calcInputEvent = new Subject<CalcInputEvent>();
     public readonly calcEditorStringInput = new Subject<string>();
     public readonly clipboardOutput = new BehaviorSubject<number>(NaN);
-    public readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
-    public readonly expressionStack = new Subject<StackItem[]>();
-    private editor: Editor = new Editor();
-    private stack = new Stack();
+    private readonly editorText = new Subject<string>();
+    private readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
+    private readonly expressionStack = new Subject<StackItem[]>();
+    private readonly editor: Editor = new Editor();
+    private readonly stack = new Stack();
 
     constructor() {
         this.calcInputEvent.subscribe(this.processInputEvent.bind(this))
         this.editor.expression.subscribe(this.editorText)
         this.calcEditorStringInput.subscribe(this.editor.stringInput)
 
-        this.stack.expressionStack.pipe(
+        this.stack.getExpressionsObservable().pipe(
             map((exprStack: Expression[]): StackItem[] => exprStack.map((expr: Expression): StackItem => {
                 return {
                     texFormula: expr.getTex(),
@@ -65,6 +65,14 @@ export class Calculator {
         ).subscribe(this.clipboardOutput)
 
 
+    }
+
+    public getEditorTextObservable(): Observable<string> {
+        return this.editorText.asObservable()
+    }
+
+    public getExpressionStackObservable(): Observable<StackItem[]> {
+        return this.expressionStack.asObservable()
     }
 
     private editorExpression(): Expression {
