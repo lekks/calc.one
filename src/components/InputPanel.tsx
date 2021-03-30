@@ -1,13 +1,13 @@
 import React from 'react';
 
-import {Subject, Subscription} from "rxjs";
+import {Observable, Subscription} from "rxjs";
 
 interface State {
     text: string;
 }
 
 interface Props {
-    subject: Subject<string>;
+    text: Observable<string>;
 }
 
 class InputPanel extends React.Component<any, State> {
@@ -16,7 +16,7 @@ class InputPanel extends React.Component<any, State> {
     constructor(props: Props) {
         super(props,);
         this.state = {text: ""};
-        this.subscription = props.subject.subscribe((text) => {
+        this.subscription = props.text.subscribe((text) => {
             this.setState({text})
         })
 

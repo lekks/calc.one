@@ -1,5 +1,5 @@
 import React from 'react';
-import {Subject} from "rxjs";
+import {Observer} from "rxjs";
 import {CalcInputEvent, CalcInputType} from "../calculator/Calculator";
 
 
@@ -7,8 +7,8 @@ interface Props {
     caption: string;
     tag?: string;
     action: CalcInputType;
-    keybind?: string;
-    subject: Subject<CalcInputEvent>;
+    keybinding?: string;
+    subject: Observer<CalcInputEvent>;
 }
 
 class CalcButton extends React.Component<Props, any> {
@@ -34,7 +34,7 @@ class CalcButton extends React.Component<Props, any> {
     };
 
     private onKeyDown = (e: KeyboardEvent) => {
-        if (e.key === this.props.keybind) {
+        if (e.key === this.props.keybinding) {
             this.onClick()
         }
         // console.log(e)

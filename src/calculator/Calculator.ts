@@ -42,21 +42,13 @@ export class Calculator {
     private readonly editor: Editor = new Editor();
     private readonly stack = new Stack();
 
-    constructor({
-                    inputEvent,
-                    editorTextInput,
-                    result,
-                    editorText,
-                    expressionStack,
-                    stackResult
-                }: CalculatorSignals
-    ) {
-        inputEvent?.subscribe(this.processInputEvent.bind(this))
-        editorTextInput?.subscribe(this.editor.stringInput)
-        this.expressionStack.subscribe(expressionStack)
+    constructor(extern: CalculatorSignals) {
+        extern.inputEvent?.subscribe(this.processInputEvent.bind(this))
+        extern.editorTextInput?.subscribe(this.editor.stringInput)
+        this.expressionStack.subscribe(extern.expressionStack)
 
-        this.editor.expression.subscribe(editorText)
-        this.calcResult.subscribe(stackResult)
+        this.editor.expression.subscribe(extern.editorText)
+        this.calcResult.subscribe(extern.stackResult)
 
         this.stack.getExpressionsObservable().pipe(
             map((exprStack: Expression[]): StackItem[] => exprStack.map((expr: Expression): StackItem => {
@@ -78,7 +70,7 @@ export class Calculator {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
             distinctUntilChanged()
-        ).subscribe(result)
+        ).subscribe(extern.result)
 
     }
 

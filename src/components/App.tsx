@@ -25,8 +25,8 @@ new Calculator({
 const App: React.FC = () => {
     return (
         <div className="App">
-            <ExpressionStack subject={calcExpressionStack}/>
-            <InputPanel subject={calcEditorStringOutput}/>
+            <ExpressionStack exprStack={calcExpressionStack}/>
+            <InputPanel text={calcEditorStringOutput}/>
             <div className="Pad">
                 <table className="Buttons">
                     <tbody>
@@ -39,83 +39,83 @@ const App: React.FC = () => {
                     {/*    </td>*/}
                     {/*</tr>*/}
                     <tr>
-                        <td className="Num"><CalcButton caption="7" tag="7" keybind="7"
+                        <td className="Num"><CalcButton caption="7" tag="7" keybinding="7"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td className="Num"><CalcButton caption="8" tag="8" keybind="8"
+                        <td className="Num"><CalcButton caption="8" tag="8" keybinding="8"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td className="Num"><CalcButton caption="9" tag="9" keybind="9"
+                        <td className="Num"><CalcButton caption="9" tag="9" keybinding="9"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td><CalcButton caption="/" tag="/" keybind="/" action={CalcInputType.OPERATION}
+                        <td><CalcButton caption="/" tag="/" keybinding="/" action={CalcInputType.OPERATION}
                                         subject={calcInputEvent}/></td>
-                        <td><CalcButton caption="<-" keybind="Backspace" action={CalcInputType.BS}
-                                        subject={calcInputEvent}/></td>
-                    </tr>
-                    <tr>
-                        <td className="Num"><CalcButton caption="4" tag="4" keybind="4"
-                                                        action={CalcInputType.ADD_NUMBER}
-                                                        subject={calcInputEvent}/>
-                        </td>
-                        <td className="Num"><CalcButton caption="5" tag="5" keybind="5"
-                                                        action={CalcInputType.ADD_NUMBER}
-                                                        subject={calcInputEvent}/>
-                        </td>
-                        <td className="Num"><CalcButton caption="6" tag="6" keybind="6"
-                                                        action={CalcInputType.ADD_NUMBER}
-                                                        subject={calcInputEvent}/>
-                        </td>
-                        <td><CalcButton caption="*" tag="*" keybind="*" action={CalcInputType.OPERATION}
-                                        subject={calcInputEvent}/></td>
-                        <td><CalcButton caption="Del" tag="clear" keybind="Delete" action={CalcInputType.DEL}
+                        <td><CalcButton caption="<-" keybinding="Backspace" action={CalcInputType.BS}
                                         subject={calcInputEvent}/></td>
                     </tr>
                     <tr>
-                        <td className="Num"><CalcButton caption="1" tag="1" keybind="1"
+                        <td className="Num"><CalcButton caption="4" tag="4" keybinding="4"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td className="Num"><CalcButton caption="2" tag="2" keybind="2"
+                        <td className="Num"><CalcButton caption="5" tag="5" keybinding="5"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td className="Num"><CalcButton caption="3" tag="3" keybind="3"
+                        <td className="Num"><CalcButton caption="6" tag="6" keybinding="6"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td><CalcButton caption="-" tag="-" keybind="-" action={CalcInputType.OPERATION}
+                        <td><CalcButton caption="*" tag="*" keybinding="*" action={CalcInputType.OPERATION}
                                         subject={calcInputEvent}/></td>
-                        <td><CalcButton caption="Swap" keybind="PageDown" action={CalcInputType.SWAP}
+                        <td><CalcButton caption="Del" tag="clear" keybinding="Delete" action={CalcInputType.DEL}
                                         subject={calcInputEvent}/></td>
                     </tr>
                     <tr>
-                        <td className="Num"><CalcButton caption="0" tag="0" keybind="0"
+                        <td className="Num"><CalcButton caption="1" tag="1" keybinding="1"
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
-                        <td className="Num"><CalcButton caption="." tag="." keybind="."
+                        <td className="Num"><CalcButton caption="2" tag="2" keybinding="2"
+                                                        action={CalcInputType.ADD_NUMBER}
+                                                        subject={calcInputEvent}/>
+                        </td>
+                        <td className="Num"><CalcButton caption="3" tag="3" keybinding="3"
+                                                        action={CalcInputType.ADD_NUMBER}
+                                                        subject={calcInputEvent}/>
+                        </td>
+                        <td><CalcButton caption="-" tag="-" keybinding="-" action={CalcInputType.OPERATION}
+                                        subject={calcInputEvent}/></td>
+                        <td><CalcButton caption="Swap" keybinding="PageDown" action={CalcInputType.SWAP}
+                                        subject={calcInputEvent}/></td>
+                    </tr>
+                    <tr>
+                        <td className="Num"><CalcButton caption="0" tag="0" keybinding="0"
+                                                        action={CalcInputType.ADD_NUMBER}
+                                                        subject={calcInputEvent}/>
+                        </td>
+                        <td className="Num"><CalcButton caption="." tag="." keybinding="."
                                                         action={CalcInputType.ADD_NUMBER}
                                                         subject={calcInputEvent}/>
                         </td>
                         <td/>
-                        <td><CalcButton caption="+" tag="+" keybind="+" action={CalcInputType.OPERATION}
+                        <td><CalcButton caption="+" tag="+" keybinding="+" action={CalcInputType.OPERATION}
                                         subject={calcInputEvent}/></td>
-                        <td><CalcButton caption="Reset" keybind="Escape" action={CalcInputType.CLEAR}
+                        <td><CalcButton caption="Reset" keybinding="Escape" action={CalcInputType.CLEAR}
                                         subject={calcInputEvent}/></td>
                     </tr>
                     <tr>
-                        <td><CalcButton caption="√" tag="sqrt" keybind="\" action={CalcInputType.OPERATION}
+                        <td><CalcButton caption="√" tag="sqrt" keybinding="\" action={CalcInputType.OPERATION}
                                         subject={calcInputEvent}/></td>
                         <td><CalcButton caption="x²" tag="sqr" action={CalcInputType.OPERATION}
                                         subject={calcInputEvent}/></td>
                         <td><CalcButton caption="-x" tag="uminus" action={CalcInputType.OPERATION}
                                         subject={calcInputEvent}/></td>
                         <td/>
-                        <td><CalcButton caption="Enter" keybind="Enter" action={CalcInputType.ENTER}
+                        <td><CalcButton caption="Enter" keybinding="Enter" action={CalcInputType.ENTER}
                                         subject={calcInputEvent}/></td>
                     </tr>
                     </tbody>
