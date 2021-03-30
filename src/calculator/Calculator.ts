@@ -1,7 +1,7 @@
 import {Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
-import {BehaviorSubject, combineLatest, Observable, Subject} from "rxjs"
+import {combineLatest, Observable, Observer, Subject} from "rxjs"
 import {distinctUntilChanged, map} from "rxjs/operators";
 import {Stack} from "./Stack";
 
@@ -26,21 +26,37 @@ export interface StackItem {
     readonly result: number
 }
 
+export interface CalculatorSignals {
+    inputEvent?: Observable<CalcInputEvent>,
+    editorTextInput?: Observable<string>,
+    result?: Observer<number>
+    editorText?: Observer<string>,
+    expressionStack?: Observer<StackItem[]>
+    stackResult?: Observer<StackItem | undefined>;
+}
+
 export class Calculator {
 
-    public readonly calcInputEvent = new Subject<CalcInputEvent>();
-    public readonly calcEditorStringInput = new Subject<string>();
-    public readonly clipboardOutput = new BehaviorSubject<number>(NaN);
-    private readonly editorText = new Subject<string>();
-    private readonly stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
+    private readonly calcResult = new Subject<StackItem | undefined>();
     private readonly expressionStack = new Subject<StackItem[]>();
     private readonly editor: Editor = new Editor();
     private readonly stack = new Stack();
 
-    constructor() {
-        this.calcInputEvent.subscribe(this.processInputEvent.bind(this))
-        this.editor.expression.subscribe(this.editorText)
-        this.calcEditorStringInput.subscribe(this.editor.stringInput)
+    constructor({
+                    inputEvent,
+                    editorTextInput,
+                    result,
+                    editorText,
+                    expressionStack,
+                    stackResult
+                }: CalculatorSignals
+    ) {
+        inputEvent?.subscribe(this.processInputEvent.bind(this))
+        editorTextInput?.subscribe(this.editor.stringInput)
+        this.expressionStack.subscribe(expressionStack)
+
+        this.editor.expression.subscribe(editorText)
+        this.calcResult.subscribe(stackResult)
 
         this.stack.getExpressionsObservable().pipe(
             map((exprStack: Expression[]): StackItem[] => exprStack.map((expr: Expression): StackItem => {
@@ -55,24 +71,15 @@ export class Calculator {
             map((stack: StackItem[]) =>
                 stack[stack.length - 1] ? stack[stack.length - 1] : undefined
             )
-        ).subscribe(this.stackResult);
+        ).subscribe(this.calcResult);
 
-        combineLatest([this.editor.value, this.stackResult]).pipe(
+        combineLatest([this.editor.value, this.calcResult]).pipe(
             map(([editor, stack]) => {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
             distinctUntilChanged()
-        ).subscribe(this.clipboardOutput)
+        ).subscribe(result)
 
-
-    }
-
-    public getEditorTextObservable(): Observable<string> {
-        return this.editorText.asObservable()
-    }
-
-    public getExpressionStackObservable(): Observable<StackItem[]> {
-        return this.expressionStack.asObservable()
     }
 
     private editorExpression(): Expression {
