@@ -1,19 +1,32 @@
-import {BehaviorSubject, Subject} from "rxjs";
+import {Observable, Observer, Subject} from "rxjs";
 import {filter, map, mergeAll, scan} from "rxjs/operators";
 
+export interface EditorSignals {
+    outputText?: Observer<string>,
+    outputValue?: Observer<number>,
+    inputSymbols?: Observable<string>,
+    inputString?: Observable<string>
+}
+
+export const CLEAR_SYMBOL = "DEL"
+export const BS_SYMBOL = "BS"
+
 export class Editor {
-    public static readonly CLEAR_SYMBOL = "DEL"
-    public static readonly BS_SYMBOL = "BS"
     private static readonly allowedSymbols: string[] = [
         '.', ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        Editor.CLEAR_SYMBOL, Editor.BS_SYMBOL
+        CLEAR_SYMBOL, BS_SYMBOL
     ];
-    public readonly symbolInput = new Subject<string>();
-    public readonly stringInput = new Subject<string>();
-    public readonly expression = new BehaviorSubject<string>("");
-    public readonly value = new Subject<number>();
+    private readonly symbolInput = new Subject<string>();
+    private readonly stringInput = new Subject<string>();
+    private readonly expression = new Subject<string>();
+    private readonly value = new Subject<number>();
 
-    constructor() {
+    constructor(extern: EditorSignals) {
+        this.expression.subscribe(extern.outputText)
+        this.value.subscribe(extern.outputValue)
+        extern.inputSymbols?.subscribe(this.symbolInput)
+        extern.inputString?.subscribe(this.stringInput)
+
         this.stringInput.pipe(mergeAll()).subscribe(this.symbolInput)
         this.symbolInput.pipe(
             filter(value => Editor.allowedSymbols.includes(value)),
@@ -23,14 +36,14 @@ export class Editor {
     }
 
     private static symbolReducer(acc: string, expr: string) {
-        if (expr === Editor.BS_SYMBOL) {
+        if (expr === BS_SYMBOL) {
             if (acc.length > 0) {
                 return acc.slice(0, -1);
             } else {
                 return acc;
             }
         }
-        if (expr === Editor.CLEAR_SYMBOL) {
+        if (expr === CLEAR_SYMBOL) {
             return ""
         }
         if (expr === ',')
@@ -40,15 +53,4 @@ export class Editor {
         return acc + expr;
     }
 
-    getInput(): string {
-        return this.expression.getValue();
-    }
-
-    notEmpty(): boolean {
-        return this.expression.getValue().length !== 0;
-    }
-
-    addSymbol(symbol: string) {
-        return this.symbolInput.next(symbol);
-    }
 }

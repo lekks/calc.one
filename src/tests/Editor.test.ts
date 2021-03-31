@@ -1,53 +1,64 @@
-import {Editor} from "../calculator/Editor";
-import {from} from "rxjs";
+import {BS_SYMBOL, CLEAR_SYMBOL, Editor} from "../calculator/Editor";
+import {BehaviorSubject, from, Subject} from "rxjs";
 
 
 describe('Test Editor', () => {
+    let editorText: BehaviorSubject<string>
+    let editorSymbolInput: Subject<string>
+    let editorStringInput: Subject<string>
+    let editor: Editor
+
+    beforeEach(() => {
+        editorText = new BehaviorSubject<string>("")
+        editorSymbolInput = new Subject<string>()
+        editorStringInput = new Subject<string>()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        editor = new Editor({
+            outputText: editorText,
+            inputSymbols: editorSymbolInput,
+            inputString: editorStringInput
+        });
+    });
+
+
     test('Editor add symbol', () => {
-        let editor = new Editor();
         const arraySource = from("124358.6");
-        arraySource.subscribe(editor.symbolInput)
-        expect(editor.getInput()).toBe('124358.6')
+        arraySource.subscribe(editorSymbolInput)
+        expect(editorText.getValue()).toBe('124358.6')
     });
 
     test('Editor add string', () => {
-        let editor = new Editor();
-        editor.stringInput.next("453558.612")
-        expect(editor.getInput()).toBe('453558.612')
+        editorStringInput.next("453558.612")
+        expect(editorText.getValue()).toBe('453558.612')
     });
 
     test('Editor reject symbol', () => {
-        let editor = new Editor();
-        editor.stringInput.next("213sd.7")
-        expect(editor.getInput()).toBe('213.7')
+        editorStringInput.next("213sd.7")
+        expect(editorText.getValue()).toBe('213.7')
     });
 
     test('Editor reject second point', () => {
-        let editor = new Editor();
-        editor.stringInput.next("233.23.5")
-        expect(editor.getInput()).toBe('233.235')
+        editorStringInput.next("233.23.5")
+        expect(editorText.getValue()).toBe('233.235')
     });
 
     test('Editor substitute comma', () => {
-        let editor = new Editor();
-        editor.stringInput.next("233,23,5")
-        expect(editor.getInput()).toBe('233.235')
+        editorStringInput.next("233,23,5")
+        expect(editorText.getValue()).toBe('233.235')
     });
 
     test('Editor backspace', () => {
-        let editor = new Editor();
-        editor.stringInput.next("12345")
-        expect(editor.getInput()).toBe('12345')
-        editor.symbolInput.next(Editor.BS_SYMBOL)
-        expect(editor.getInput()).toBe('1234')
+        editorStringInput.next("12345")
+        expect(editorText.getValue()).toBe('12345')
+        editorSymbolInput.next(BS_SYMBOL)
+        expect(editorText.getValue()).toBe('1234')
     });
 
     test('Editor clear', () => {
-        let editor = new Editor();
-        editor.stringInput.next("12345")
-        expect(editor.getInput()).toBe('12345')
-        editor.symbolInput.next(Editor.CLEAR_SYMBOL)
-        expect(editor.getInput()).toBe('')
+        editorStringInput.next("12345")
+        expect(editorText.getValue()).toBe('12345')
+        editorSymbolInput.next(CLEAR_SYMBOL)
+        expect(editorText.getValue()).toBe('')
     });
 
 

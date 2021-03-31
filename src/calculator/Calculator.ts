@@ -1,7 +1,7 @@
-import {Editor} from "./Editor";
+import {BS_SYMBOL, CLEAR_SYMBOL, Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
-import {combineLatest, Observable, Observer, Subject} from "rxjs"
+import {BehaviorSubject, combineLatest, Observable, Observer, Subject} from "rxjs"
 import {distinctUntilChanged, map} from "rxjs/operators";
 import {Stack} from "./Stack";
 
@@ -39,16 +39,21 @@ export class Calculator {
 
     private readonly calcResult = new Subject<StackItem | undefined>();
     private readonly expressionStack = new Subject<StackItem[]>();
-    private readonly editor: Editor = new Editor();
     private readonly stack = new Stack();
+    private readonly editorText = new BehaviorSubject<string>("")
+    private readonly editorValue = new BehaviorSubject<number>(NaN)
+    private readonly editorInputSymbols = new Subject<string>();
+    private readonly editorInputString = new Subject<string>();
+    private readonly editor = new Editor({
+        outputText: this.editorText,
+        inputSymbols: this.editorInputSymbols,
+        inputString: this.editorInputString,
+        outputValue: this.editorValue
+    });
 
     constructor(extern: CalculatorSignals) {
         extern.inputEvent?.subscribe(this.processInputEvent.bind(this))
-        extern.editorTextInput?.subscribe(this.editor.stringInput)
-        this.expressionStack.subscribe(extern.expressionStack)
-
-        this.editor.expression.subscribe(extern.editorText)
-        this.calcResult.subscribe(extern.stackResult)
+        extern.editorTextInput?.subscribe(this.editorInputString)
 
         this.stack.getExpressionsObservable().pipe(
             map((exprStack: Expression[]): StackItem[] => exprStack.map((expr: Expression): StackItem => {
@@ -65,18 +70,26 @@ export class Calculator {
             )
         ).subscribe(this.calcResult);
 
-        combineLatest([this.editor.value, this.calcResult]).pipe(
+        combineLatest([this.editorValue, this.calcResult]).pipe(
             map(([editor, stack]) => {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
             distinctUntilChanged()
         ).subscribe(extern.result)
+        this.expressionStack.subscribe(extern.expressionStack)
+        this.calcResult.subscribe(extern.stackResult)
+        this.editorText.subscribe(extern.editorText)
 
     }
 
     private editorExpression(): Expression {
-        return new NumberExpression(this.editor.getInput())
+        return new NumberExpression(this.editorText.getValue())
     }
+
+    private editorNotEmpty(): boolean {
+        return this.editorText.getValue().length !== 0;
+    }
+
 
     private addOperation(oper: string) {
         // operation is unknown
@@ -86,16 +99,16 @@ export class Calculator {
 
         // we must have in stack as much items as we need for operation
         const opnNum: number = ops.operandsNumber(oper);
-        const stackGet = opnNum - (this.editor.notEmpty() ? 1 : 0);
+        const stackGet = opnNum - (this.editorNotEmpty() ? 1 : 0);
         if (stackGet > this.stack.getLength()) {
             return
         }
 
         const operandsExpr: Expression[] = this.stack.getTop(stackGet)
 
-        if (this.editor.notEmpty()) {
+        if (this.editorNotEmpty()) {
             operandsExpr.push(this.editorExpression());
-            this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+            this.editorInputSymbols.next(CLEAR_SYMBOL);
         }
         this.stack.addOperation(ops.buildExpression(oper, ...operandsExpr));
     }
@@ -103,41 +116,41 @@ export class Calculator {
     private processInputEvent(event: CalcInputEvent) {
         switch (event.type) {
             case CalcInputType.ADD_NUMBER:
-                event.payload && this.editor.addSymbol(event.payload);
+                event.payload && this.editorInputSymbols.next(event.payload);
                 break;
             case CalcInputType.OPERATION:
                 event.payload && this.addOperation(event.payload);
                 break;
             case CalcInputType.DEL:
-                if (this.editor.notEmpty()) {
-                    this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                if (this.editorNotEmpty()) {
+                    this.editorInputSymbols.next(CLEAR_SYMBOL);
                 } else {
                     this.stack.del()
                 }
                 break;
             case CalcInputType.CLEAR:
-                this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                this.editorInputSymbols.next(CLEAR_SYMBOL);
                 this.stack.clear()
                 break;
             case CalcInputType.BS:
-                if (this.editor.notEmpty()) {
-                    this.editor.addSymbol(Editor.BS_SYMBOL)
+                if (this.editorNotEmpty()) {
+                    this.editorInputSymbols.next(BS_SYMBOL)
                 } else {
                     this.stack.backSpace()
                 }
                 break;
             case CalcInputType.ENTER:
-                if (this.editor.notEmpty()) {
+                if (this.editorNotEmpty()) {
                     this.stack.push(this.editorExpression());
-                    this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                    this.editorInputSymbols.next(CLEAR_SYMBOL);
                 } else {
                     this.stack.duplicate()
                 }
                 break;
             case CalcInputType.SWAP:
-                if (this.editor.notEmpty()) {
+                if (this.editorNotEmpty()) {
                     this.stack.push(this.editorExpression());
-                    this.editor.addSymbol(Editor.CLEAR_SYMBOL);
+                    this.editorInputSymbols.next(CLEAR_SYMBOL);
                 }
                 this.stack.swap();
                 break;
