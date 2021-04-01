@@ -1,7 +1,7 @@
 import {BS_SYMBOL, CLEAR_SYMBOL, Editor} from "./Editor";
 import {Expression, NumberExpression} from "./Expression";
 import ops from "./operations";
-import {BehaviorSubject, combineLatest, Observable, Observer, Subject} from "rxjs"
+import {BehaviorSubject, combineLatest, Observable, Observer, Subject, Subscription} from "rxjs"
 import {distinctUntilChanged, map} from "rxjs/operators";
 import {Stack} from "./Stack";
 
@@ -44,42 +44,50 @@ export class Calculator {
     private readonly editorValue = new BehaviorSubject<number>(NaN)
     private readonly editorInputSymbols = new Subject<string>();
     private readonly editorInputString = new Subject<string>();
-    private readonly editor = new Editor({
-        outputText: this.editorText,
-        inputSymbols: this.editorInputSymbols,
-        inputString: this.editorInputString,
-        outputValue: this.editorValue
-    });
+    private readonly editor: Editor;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(extern: CalculatorSignals) {
-        extern.inputEvent?.subscribe(this.processInputEvent.bind(this))
-        extern.editorTextInput?.subscribe(this.editorInputString)
 
-        this.stack.getExpressionsObservable().pipe(
+        this.editor = new Editor({
+            outputText: this.editorText,
+            inputSymbols: this.editorInputSymbols,
+            inputString: this.editorInputString,
+            outputValue: this.editorValue
+        });
+
+        this.subscriptions.add(extern.inputEvent?.subscribe(this.processInputEvent.bind(this)))
+        this.subscriptions.add(extern.editorTextInput?.subscribe(this.editorInputString))
+
+        this.subscriptions.add(this.stack.getExpressionsObservable().pipe(
             map((exprStack: Expression[]): StackItem[] => exprStack.map((expr: Expression): StackItem => {
                 return {
                     texFormula: expr.getTex(),
                     result: expr.getResult()
                 }
             }))
-        ).subscribe(this.expressionStack)
+        ).subscribe(this.expressionStack))
 
-        this.expressionStack.pipe(
+        this.subscriptions.add(this.expressionStack.pipe(
             map((stack: StackItem[]) =>
                 stack[stack.length - 1] ? stack[stack.length - 1] : undefined
             )
-        ).subscribe(this.calcResult);
+        ).subscribe(this.calcResult))
 
-        combineLatest([this.editorValue, this.calcResult]).pipe(
+        this.subscriptions.add(combineLatest([this.editorValue, this.calcResult]).pipe(
             map(([editor, stack]) => {
                 return !isNaN(editor) ? editor : (stack ? stack.result : NaN)
             }),
             distinctUntilChanged()
-        ).subscribe(extern.result)
-        this.expressionStack.subscribe(extern.expressionStack)
-        this.calcResult.subscribe(extern.stackResult)
-        this.editorText.subscribe(extern.editorText)
+        ).subscribe(extern.result))
+        this.subscriptions.add(this.expressionStack.subscribe(extern.expressionStack))
+        this.subscriptions.add(this.calcResult.subscribe(extern.stackResult))
+        this.subscriptions.add(this.editorText.subscribe(extern.editorText))
+    }
 
+    public destroy() {
+        this.editor.destroy()
+        this.subscriptions.unsubscribe()
     }
 
     private editorExpression(): Expression {
@@ -89,7 +97,6 @@ export class Calculator {
     private editorNotEmpty(): boolean {
         return this.editorText.getValue().length !== 0;
     }
-
 
     private addOperation(oper: string) {
         // operation is unknown

@@ -12,19 +12,18 @@ interface Props {
 }
 
 class ExpressionStack extends React.Component<any, State> {
-    private readonly subscription?: Subscription;
+    private readonly subscription = new Subscription();
 
     constructor(props: Props) {
         super(props,);
         this.state = {expressions: []};
-        this.subscription = props.exprStack.subscribe((expressions) => {
+        this.subscription.add(props.exprStack.subscribe((expressions) => {
             this.setState({expressions})
-        })
+        }))
     }
 
-
     public componentWillUnmount() {
-        this.subscription && this.subscription.unsubscribe();
+        this.subscription.unsubscribe();
     }
 
     render() {

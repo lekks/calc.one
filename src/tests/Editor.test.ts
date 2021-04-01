@@ -20,6 +20,10 @@ describe('Test Editor', () => {
         });
     });
 
+    afterEach(() => {
+        editor.destroy()
+    })
+
 
     test('Editor add symbol', () => {
         const arraySource = from("124358.6");

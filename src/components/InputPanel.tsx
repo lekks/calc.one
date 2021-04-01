@@ -11,14 +11,14 @@ interface Props {
 }
 
 class InputPanel extends React.Component<any, State> {
-    subscription: Subscription;
+    private readonly subscription = new Subscription();
 
     constructor(props: Props) {
         super(props,);
         this.state = {text: ""};
-        this.subscription = props.text.subscribe((text) => {
+        this.subscription.add(props.text.subscribe((text) => {
             this.setState({text})
-        })
+        }))
 
     }
 

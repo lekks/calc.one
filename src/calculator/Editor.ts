@@ -1,4 +1,4 @@
-import {Observable, Observer, Subject} from "rxjs";
+import {Observable, Observer, Subject, Subscription} from "rxjs";
 import {filter, map, mergeAll, scan} from "rxjs/operators";
 
 export interface EditorSignals {
@@ -21,18 +21,24 @@ export class Editor {
     private readonly expression = new Subject<string>();
     private readonly value = new Subject<number>();
 
-    constructor(extern: EditorSignals) {
-        this.expression.subscribe(extern.outputText)
-        this.value.subscribe(extern.outputValue)
-        extern.inputSymbols?.subscribe(this.symbolInput)
-        extern.inputString?.subscribe(this.stringInput)
+    private subscriptions: Subscription = new Subscription();
 
-        this.stringInput.pipe(mergeAll()).subscribe(this.symbolInput)
-        this.symbolInput.pipe(
+    constructor(extern: EditorSignals) {
+        this.subscriptions.add(this.expression.subscribe(extern.outputText))
+        this.subscriptions.add(this.value.subscribe(extern.outputValue))
+        this.subscriptions.add(extern.inputSymbols?.subscribe(this.symbolInput))
+        this.subscriptions.add(extern.inputString?.subscribe(this.stringInput))
+
+        this.subscriptions.add(this.stringInput.pipe(mergeAll()).subscribe(this.symbolInput))
+        this.subscriptions.add(this.symbolInput.pipe(
             filter(value => Editor.allowedSymbols.includes(value)),
             scan(Editor.symbolReducer, "")
-        ).subscribe(this.expression);
-        this.expression.pipe(map(str => str.length ? Number(str) : NaN)).subscribe(this.value)
+        ).subscribe(this.expression))
+        this.subscriptions.add(this.expression.pipe(map(str => str.length ? Number(str) : NaN)).subscribe(this.value))
+    }
+
+    public destroy() {
+        this.subscriptions.unsubscribe()
     }
 
     private static symbolReducer(acc: string, expr: string) {

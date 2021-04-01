@@ -11,13 +11,16 @@ describe('Test Calculator', () => {
         calcInputEvent = new Subject<CalcInputEvent>();
         clipboardOutput = new BehaviorSubject<number>(NaN)
         stackResult = new BehaviorSubject<StackItem | undefined>(undefined);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         calculator = new Calculator({
             inputEvent: calcInputEvent,
             stackResult: stackResult,
             result: clipboardOutput
         });
     });
+
+    afterEach(() => {
+        calculator.destroy()
+    })
 
     test('2х3=6', () => {
         from([
