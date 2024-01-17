@@ -1,4 +1,4 @@
-# Use it here:[calc.one](https://calc.one/)
+# Use it here:[rpn.app](https://rpn.app/)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
