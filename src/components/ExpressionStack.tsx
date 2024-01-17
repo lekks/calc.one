@@ -1,36 +1,36 @@
 import React from 'react';
-import FBEmitter from "fbemitter";
-
-import {ExpressionEvents, expressionStore} from "../stores/ExpressionStore";
 import ExpressionPanel from "./ExpressionPanel";
-import {Expression} from "../expression/Expression";
+import {StackItem} from "../calculator/Calculator";
+import {Observable, Subscription} from "rxjs";
 
 interface State {
-    expressions: Expression[];
+    expressions: StackItem[];
+}
+
+interface Props {
+    exprStack: Observable<StackItem[]>;
 }
 
 class ExpressionStack extends React.Component<any, State> {
-    private eventSubscription: FBEmitter.EventSubscription;
+    private readonly subscription = new Subscription();
 
-    constructor(props: {}) {
+    constructor(props: Props) {
         super(props,);
-        this.state = ExpressionStack.getStateFromStores();
-        this.eventSubscription = expressionStore.addChangeListener(ExpressionEvents.STACK_CHANGE_EVENT, this.onChange);
-    }
-
-    private static getStateFromStores(): State {
-        return {expressions: expressionStore.getStack()};
+        this.state = {expressions: []};
+        this.subscription.add(props.exprStack.subscribe((expressions) => {
+            this.setState({expressions})
+        }))
     }
 
     public componentWillUnmount() {
-        this.eventSubscription.remove();
+        this.subscription.unsubscribe();
     }
 
     render() {
         const reversed = this.state.expressions.slice().reverse();
         return (
             <div className="Stack">
-                {reversed.map((expr: Expression, index) =>
+                {reversed.map((expr: StackItem, index) =>
                     <React.Fragment key={index}>
                         {index ? <hr/> : null}
                         <ExpressionPanel expression={expr}/>
@@ -39,10 +39,6 @@ class ExpressionStack extends React.Component<any, State> {
             </div>
         );
     }
-
-    private onChange = () => {
-        this.setState(ExpressionStack.getStateFromStores());
-    };
 }
 
 export default ExpressionStack;
